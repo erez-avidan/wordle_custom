@@ -1,10 +1,59 @@
-this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
+
+this.wordle = this.wordle || {}, this.wordle.bundle = function (e) {
     "use strict";
 
+    document.addEventListener("DOMContentLoaded", function () {
+        let styles = [],
+        keys = Object.keys(localStorage);
+
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            if(key.indexOf('gameState.') === 0) {
+                let status = JSON.parse(localStorage.getItem(key)).gameStatus;
+                let color = status === 'IN_PROGRESS' ? '#ffc107' : status === 'WIN' ? '#28a745' : '#dc3545';
+                styles.push(`\ntd[data-date="${key.substring(10)}"] {
+                    background-color: ${color};
+                }\n`);            
+            }
+        }
+        
+        const style = document.createElement('style');
+        style.innerHTML = `${styles.join('\n')}`;
+        document.head.appendChild(style);
+    });
+    
+    Date.prototype.addDays = function (days) {
+        var date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+    function format_date(d) {
+        // let year = d.getFullYear();
+        // let month = d.getMonth() + 1;
+        // let day = d.getDate();
+        // if (+month<10) { month = "0" + month; }
+        // if (+day<10) { day = "0" + day; }
+        // return `${year}-${month}-${day}`;
+        return d.toISOString().split('T')[0];
+    }
+
+    async function db_set(data) {
+        let transaction = db.transaction(["plays"], "readwrite");
+        let objectStore = transaction.objectStore("plays");
+        await objectStore.put(data);
+    }
+
+    async function db_get(date) {
+        let transaction = db.transaction(["plays"], "readwrite");
+        let objectStore = transaction.objectStore("plays");
+        return await objectStore.get(data);
+    }
+
     function a(e) {
-        return (a = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(e) {
+        return (a = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (e) {
             return typeof e
-        } : function(e) {
+        } : function (e) {
             return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol
                 .prototype ? "symbol" : typeof e
         })(e)
@@ -48,13 +97,13 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
 
     function i(e) {
-        return (i = Object.setPrototypeOf ? Object.getPrototypeOf : function(e) {
+        return (i = Object.setPrototypeOf ? Object.getPrototypeOf : function (e) {
             return e.__proto__ || Object.getPrototypeOf(e)
         })(e)
     }
 
     function l(e, a) {
-        return (l = Object.setPrototypeOf || function(e, a) {
+        return (l = Object.setPrototypeOf || function (e, a) {
             return e.__proto__ = a, e
         })(e, a)
     }
@@ -64,24 +113,24 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         if (Reflect.construct.sham) return !1;
         if ("function" == typeof Proxy) return !0;
         try {
-            return Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], (function() {}))), !0
+            return Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], (function () { }))), !0
         } catch (e) {
             return !1
         }
     }
 
     function u(e, a, s) {
-        return (u = d() ? Reflect.construct : function(e, a, s) {
+        return (u = d() ? Reflect.construct : function (e, a, s) {
             var t = [null];
             t.push.apply(t, a);
-            var o = new(Function.bind.apply(e, t));
+            var o = new (Function.bind.apply(e, t));
             return s && l(o, s.prototype), o
         }).apply(null, arguments)
     }
 
     function c(e) {
         var a = "function" == typeof Map ? new Map : void 0;
-        return (c = function(e) {
+        return (c = function (e) {
             if (null === e || (s = e, -1 === Function.toString.call(s).indexOf("[native code]")))
                 return e;
             var s;
@@ -118,7 +167,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
 
     function h(e) {
         var a = d();
-        return function() {
+        return function () {
             var s, t = i(e);
             if (a) {
                 var o = i(this).constructor;
@@ -129,9 +178,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
 
     function y(e, a) {
-        return function(e) {
+        return function (e) {
             if (Array.isArray(e)) return e
-        }(e) || function(e, a) {
+        }(e) || function (e, a) {
             var s = null == e ? null : "undefined" != typeof Symbol && e[Symbol.iterator] || e[
                 "@@iterator"];
             if (null == s) return;
@@ -140,7 +189,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 i = !1;
             try {
                 for (s = s.call(e); !(r = (t = s.next()).done) && (n.push(t.value), !a || n.length !==
-                        a); r = !0);
+                    a); r = !0);
             } catch (e) {
                 i = !0, o = e
             } finally {
@@ -151,23 +200,23 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 }
             }
             return n
-        }(e, a) || b(e, a) || function() {
+        }(e, a) || b(e, a) || function () {
             throw new TypeError(
                 "Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."
-                )
+            )
         }()
     }
 
     function g(e) {
-        return function(e) {
+        return function (e) {
             if (Array.isArray(e)) return f(e)
-        }(e) || function(e) {
+        }(e) || function (e) {
             if ("undefined" != typeof Symbol && null != e[Symbol.iterator] || null != e["@@iterator"])
                 return Array.from(e)
-        }(e) || b(e) || function() {
+        }(e) || b(e) || function () {
             throw new TypeError(
                 "Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."
-                )
+            )
         }()
     }
 
@@ -189,45 +238,45 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var k = document.createElement("template");
     k.innerHTML =
         "\n<style>\n  :host {\n    display: inline-block;\n  }\n  .tile {\n    width: 100%;\n    display: inline-flex;\n    justify-content: center;\n    align-items: center;\n    font-size: 2rem;\n    line-height: 2rem;\n    font-weight: bold;\n    vertical-align: middle;\n    box-sizing: border-box;\n    color: var(--tile-text-color);\n    text-transform: uppercase;\n    user-select: none;\n  }\n  .tile::before {\n    content: '';\n    display: inline-block;\n    padding-bottom: 100%;\n  }\n\n  /* Allow tiles to be smaller on small screens */\n  @media (max-height: 600px) {\n    .tile {\n      font-size: 1em;\n      line-height: 1em;\n    }\n  }\n\n  .tile[data-state='empty'] {\n    border: 2px solid var(--color-tone-4);\n  }\n  .tile[data-state='tbd'] {\n    background-color: var(--color-tone-7);\n    border: 2px solid var(--color-tone-3);\n    color: var(--color-tone-1);\n  }\n  .tile[data-state='correct'] {\n    background-color: var(--color-correct);\n  }\n  .tile[data-state='present'] {\n    background-color: var(--color-present);\n  }\n  .tile[data-state='absent'] {\n    background-color: var(--color-absent);\n  }\n\n  .tile[data-animation='pop'] {\n    animation-name: PopIn;\n    animation-duration: 100ms;\n  }\n\n  @keyframes PopIn {\n    from {\n      transform: scale(0.8);\n      opacity: 0;\n    }\n\n    40% {\n      transform: scale(1.1);\n      opacity: 1;\n    }\n  }\n  .tile[data-animation='flip-in'] {\n    animation-name: FlipIn;\n    animation-duration: 250ms;\n    animation-timing-function: ease-in;\n  }\n  @keyframes FlipIn {\n    0% {\n      transform: rotateX(0);\n    }\n    100% {\n      transform: rotateX(-90deg);\n    }\n  }\n  .tile[data-animation='flip-out'] {\n    animation-name: FlipOut;\n    animation-duration: 250ms;\n    animation-timing-function: ease-in;\n  }\n  @keyframes FlipOut {\n    0% {\n      transform: rotateX(-90deg);\n    }\n    100% {\n      transform: rotateX(0);\n    }\n  }\n</style>\n<div class=\"tile\" data-state=\"empty\" data-animation=\"idle\"></div>\n";
-    var v = function(e) {
+    var v = function (e) {
         r(t, e);
         var a = h(t);
 
         function t() {
             var e;
             return s(this, t), n(p(e = a.call(this)), "_letter", ""), n(p(e), "_state", "empty"), n(p(
-                    e), "_animation", "idle"), n(p(e), "_last", !1), n(p(e), "_reveal", !1), e
-                .attachShadow({
-                    mode: "open"
-                }), e
+                e), "_animation", "idle"), n(p(e), "_last", !1), n(p(e), "_reveal", !1), e
+                    .attachShadow({
+                        mode: "open"
+                    }), e
         }
         return o(t, [{
             key: "last",
-            set: function(e) {
+            set: function (e) {
                 this._last = e
             }
         }, {
             key: "connectedCallback",
-            value: function() {
+            value: function () {
                 var e = this;
                 this.shadowRoot.appendChild(k.content.cloneNode(!0)), this.$tile =
                     this.shadowRoot.querySelector(".tile"), this.$tile
-                    .addEventListener("animationend", (function(a) {
-                        "PopIn" === a.animationName && (e._animation =
-                            "idle"), "FlipIn" === a.animationName && (e.$tile
-                                .dataset.state = e._state, e._animation =
-                                "flip-out"), "FlipOut" === a.animationName &&
-                            (e._animation = "idle", e._last && e
-                                .dispatchEvent(new CustomEvent(
-                                    "game-last-tile-revealed-in-row", {
+                        .addEventListener("animationend", (function (a) {
+                            "PopIn" === a.animationName && (e._animation =
+                                "idle"), "FlipIn" === a.animationName && (e.$tile
+                                    .dataset.state = e._state, e._animation =
+                                    "flip-out"), "FlipOut" === a.animationName &&
+                                (e._animation = "idle", e._last && e
+                                    .dispatchEvent(new CustomEvent(
+                                        "game-last-tile-revealed-in-row", {
                                         bubbles: !0,
                                         composed: !0
                                     }))), e._render()
-                    })), this._render()
+                        })), this._render()
             }
         }, {
             key: "attributeChangedCallback",
-            value: function(e, a, s) {
+            value: function (e, a, s) {
                 switch (e) {
                     case "letter":
                         if (s === a) break;
@@ -246,17 +295,17 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             }
         }, {
             key: "_render",
-            value: function() {
+            value: function () {
                 this.$tile && (this.$tile.textContent = this._letter, ["empty", "tbd"]
                     .includes(this._state) && (this.$tile.dataset.state = this
                         ._state), (["empty", "tbd"].includes(this._state) || this
-                        ._reveal) && this.$tile.dataset.animation != this
-                    ._animation && (this.$tile.dataset.animation = this
-                        ._animation))
+                            ._reveal) && this.$tile.dataset.animation != this
+                                ._animation && (this.$tile.dataset.animation = this
+                                    ._animation))
             }
         }], [{
             key: "observedAttributes",
-            get: function() {
+            get: function () {
                 return ["letter", "evaluation", "reveal"]
             }
         }]), t
@@ -265,7 +314,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var w = document.createElement("template");
     w.innerHTML =
         '\n  <style>\n    :host {\n      display: block;\n    }\n    :host([invalid]){\n      animation-name: Shake;\n      animation-duration: 600ms;\n    }\n    .row {\n      display: grid;\n      grid-template-columns: repeat(5, 1fr);\n      grid-gap: 5px;\n    }\n    .win {\n      animation-name: Bounce;\n      animation-duration: 1000ms;\n    }\n\n    @keyframes Bounce {\n      0%, 20% {\n        transform: translateY(0);\n      }\n      40% {\n        transform: translateY(-30px);\n      }\n      50% {\n        transform: translateY(5px);\n      }\n      60% {\n        transform: translateY(-15px);\n      }\n      80% {\n        transform: translateY(2px);\n      }\n      100% {\n        transform: translateY(0);\n      }\n    }\n\n    @keyframes Shake {\n      10%,\n      90% {\n        transform: translateX(-1px);\n      }\n\n      20%,\n      80% {\n        transform: translateX(2px);\n      }\n\n      30%,\n      50%,\n      70% {\n        transform: translateX(-4px);\n      }\n\n      40%,\n      60% {\n        transform: translateX(4px);\n      }\n    }\n  </style>\n  <div class="row"></div>\n';
-    var x = function(e) {
+    var x = function (e) {
         r(t, e);
         var a = h(t);
 
@@ -277,45 +326,45 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }
         return o(t, [{
             key: "evaluation",
-            get: function() {
+            get: function () {
                 return this._evaluation
             },
-            set: function(e) {
+            set: function (e) {
                 var a = this;
-                this._evaluation = e, this.$tiles && this.$tiles.forEach((function(e,
+                this._evaluation = e, this.$tiles && this.$tiles.forEach((function (e,
                     s) {
                     e.setAttribute("evaluation", a._evaluation[s]),
-                        setTimeout((function() {
+                        setTimeout((function () {
                             e.setAttribute("reveal", "")
                         }), 300 * s)
                 }))
             }
         }, {
             key: "connectedCallback",
-            value: function() {
+            value: function () {
                 var e = this;
                 this.shadowRoot.appendChild(w.content.cloneNode(!0)), this.$row = this
                     .shadowRoot.querySelector(".row");
-                for (var a = function(a) {
-                        var s = document.createElement("game-tile"),
-                            t = e._letters[a];
-                        (t && s.setAttribute("letter", t), e._evaluation[a]) && (s
-                            .setAttribute("evaluation", e._evaluation[a]),
-                            setTimeout((function() {
-                                s.setAttribute("reveal", "")
-                            }), 100 * a));
-                        a === e._length - 1 && (s.last = !0), e.$row.appendChild(
-                            s)
-                    }, s = 0; s < this._length; s++) a(s);
+                for (var a = function (a) {
+                    var s = document.createElement("game-tile"),
+                        t = e._letters[a];
+                    (t && s.setAttribute("letter", t), e._evaluation[a]) && (s
+                        .setAttribute("evaluation", e._evaluation[a]),
+                        setTimeout((function () {
+                            s.setAttribute("reveal", "")
+                        }), 100 * a));
+                    a === e._length - 1 && (s.last = !0), e.$row.appendChild(
+                        s)
+                }, s = 0; s < this._length; s++) a(s);
                 this.$tiles = this.shadowRoot.querySelectorAll("game-tile"), this
-                    .addEventListener("animationend", (function(a) {
+                    .addEventListener("animationend", (function (a) {
                         "Shake" === a.animationName && e.removeAttribute(
                             "invalid")
                     }))
             }
         }, {
             key: "attributeChangedCallback",
-            value: function(e, a, s) {
+            value: function (e, a, s) {
                 switch (e) {
                     case "letters":
                         this._letters = s || "";
@@ -325,12 +374,12 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                         break;
                     case "win":
                         if (null === s) {
-                            this.$tiles.forEach((function(e) {
+                            this.$tiles.forEach((function (e) {
                                 e.classList.remove("win")
                             }));
                             break
                         }
-                        this.$tiles.forEach((function(e, a) {
+                        this.$tiles.forEach((function (e, a) {
                             e.classList.add("win"), e.style
                                 .animationDelay = "".concat(100 * a, "ms")
                         }))
@@ -339,9 +388,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             }
         }, {
             key: "_render",
-            value: function() {
+            value: function () {
                 var e = this;
-                this.$row && this.$tiles.forEach((function(a, s) {
+                this.$row && this.$tiles.forEach((function (a, s) {
                     var t = e._letters[s];
                     t ? a.setAttribute("letter", t) : a.removeAttribute(
                         "letter")
@@ -349,7 +398,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             }
         }], [{
             key: "observedAttributes",
-            get: function() {
+            get: function () {
                 return ["letters", "length", "invalid", "win"]
             }
         }]), t
@@ -359,7 +408,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     z.innerHTML = "\n  <slot></slot>\n";
     var j = "darkTheme",
         S = "colorBlindTheme",
-        _ = function(e) {
+        _ = function (e) {
             r(t, e);
             var a = h(t);
 
@@ -377,7 +426,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             }
             return o(t, [{
                 key: "setDarkTheme",
-                value: function(e) {
+                value: function (e) {
                     var a = document.querySelector("body");
                     e && !a.classList.contains("nightmode") ? a.classList.add(
                         "nightmode") : a.classList.remove("nightmode"), this.isDarkTheme =
@@ -385,19 +434,19 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 }
             }, {
                 key: "setColorBlindTheme",
-                value: function(e) {
+                value: function (e) {
                     var a = document.querySelector("body");
                     e && !a.classList.contains("colorblind") ? a.classList.add(
-                            "colorblind") : a.classList.remove("colorblind"), this
-                        .isColorBlindTheme = e, window.localStorage.setItem(S, JSON
-                            .stringify(e))
+                        "colorblind") : a.classList.remove("colorblind"), this
+                            .isColorBlindTheme = e, window.localStorage.setItem(S, JSON
+                                .stringify(e))
                 }
             }, {
                 key: "connectedCallback",
-                value: function() {
+                value: function () {
                     var e = this;
                     this.shadowRoot.appendChild(z.content.cloneNode(!0)), this.shadowRoot
-                        .addEventListener("game-setting-change", (function(a) {
+                        .addEventListener("game-setting-change", (function (a) {
                             var s = a.detail,
                                 t = s.name,
                                 o = s.checked;
@@ -432,19 +481,19 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             this.set(t[0], t[1])
         }
     }
-    C.prototype.clear = function() {
+    C.prototype.clear = function () {
         this.__data__ = [], this.size = 0
-    }, C.prototype.delete = function(e) {
+    }, C.prototype.delete = function (e) {
         var a = this.__data__,
             s = E(a, e);
         return !(s < 0) && (s == a.length - 1 ? a.pop() : A.call(a, s, 1), --this.size, !0)
-    }, C.prototype.get = function(e) {
+    }, C.prototype.get = function (e) {
         var a = this.__data__,
             s = E(a, e);
         return s < 0 ? void 0 : a[s][1]
-    }, C.prototype.has = function(e) {
+    }, C.prototype.has = function (e) {
         return E(this.__data__, e) > -1
-    }, C.prototype.set = function(e, a) {
+    }, C.prototype.set = function (e, a) {
         var s = this.__data__,
             t = E(s, e);
         return t < 0 ? (++this.size, s.push([e, a])) : s[t][1] = a, this
@@ -452,7 +501,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var L = "object" == ("undefined" == typeof global ? "undefined" : a(global)) && global && global
         .Object === Object && global,
         T = "object" == ("undefined" == typeof self ? "undefined" : a(self)) && self && self.Object ===
-        Object && self,
+            Object && self,
         I = L || T || Function("return this")(),
         M = I.Symbol,
         O = Object.prototype,
@@ -464,16 +513,16 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
 
     function D(e) {
         return null == e ? void 0 === e ? "[object Undefined]" : "[object Null]" : N && N in Object(e) ?
-            function(e) {
+            function (e) {
                 var a = R.call(e, $),
                     s = e[$];
                 try {
                     e[$] = void 0;
                     var t = !0
-                } catch (e) {}
+                } catch (e) { }
                 var o = P.call(e);
                 return t && (a ? e[$] = s : delete e[$]), o
-            }(e) : function(e) {
+            }(e) : function (e) {
                 return H.call(e)
             }(e)
     }
@@ -501,14 +550,14 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             /hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
 
     function ee(e) {
-        return !(!G(e) || (a = e, Y && Y in a)) && (B(e) ? Z : U).test(function(e) {
+        return !(!G(e) || (a = e, Y && Y in a)) && (B(e) ? Z : U).test(function (e) {
             if (null != e) {
                 try {
                     return J.call(e)
-                } catch (e) {}
+                } catch (e) { }
                 try {
                     return e + ""
-                } catch (e) {}
+                } catch (e) { }
             }
             return ""
         }(e));
@@ -516,7 +565,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
 
     function ae(e, a) {
-        var s = function(e, a) {
+        var s = function (e, a) {
             return null == e ? void 0 : e[a]
         }(e, a);
         return ee(s) ? s : void 0
@@ -549,39 +598,39 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             this.set(t[0], t[1])
         }
     }
-    re.prototype.clear = function() {
+    re.prototype.clear = function () {
         this.__data__ = te ? te(null) : {}, this.size = 0
-    }, re.prototype.delete = function(e) {
+    }, re.prototype.delete = function (e) {
         var a = this.has(e) && delete this.__data__[e];
         return this.size -= a ? 1 : 0, a
-    }, re.prototype.get = function(e) {
+    }, re.prototype.get = function (e) {
         var a = this.__data__;
         if (te) {
             var s = a[e];
             return "__lodash_hash_undefined__" === s ? void 0 : s
         }
         return oe.call(a, e) ? a[e] : void 0
-    }, re.prototype.has = function(e) {
+    }, re.prototype.has = function (e) {
         var a = this.__data__;
         return te ? void 0 !== a[e] : ne.call(a, e)
-    }, re.prototype.set = function(e, a) {
+    }, re.prototype.set = function (e, a) {
         var s = this.__data__;
         return this.size += this.has(e) ? 0 : 1, s[e] = te && void 0 === a ?
             "__lodash_hash_undefined__" : a, this
-    }, le.prototype.clear = function() {
+    }, le.prototype.clear = function () {
         this.size = 0, this.__data__ = {
             hash: new re,
-            map: new(se || C),
+            map: new (se || C),
             string: new re
         }
-    }, le.prototype.delete = function(e) {
+    }, le.prototype.delete = function (e) {
         var a = ie(this, e).delete(e);
         return this.size -= a ? 1 : 0, a
-    }, le.prototype.get = function(e) {
+    }, le.prototype.get = function (e) {
         return ie(this, e).get(e)
-    }, le.prototype.has = function(e) {
+    }, le.prototype.has = function (e) {
         return ie(this, e).has(e)
-    }, le.prototype.set = function(e, a) {
+    }, le.prototype.set = function (e, a) {
         var s = ie(this, e),
             t = s.size;
         return s.set(e, a), this.size += s.size == t ? 0 : 1, this
@@ -591,17 +640,17 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         var a = this.__data__ = new C(e);
         this.size = a.size
     }
-    de.prototype.clear = function() {
+    de.prototype.clear = function () {
         this.__data__ = new C, this.size = 0
-    }, de.prototype.delete = function(e) {
+    }, de.prototype.delete = function (e) {
         var a = this.__data__,
             s = a.delete(e);
         return this.size = a.size, s
-    }, de.prototype.get = function(e) {
+    }, de.prototype.get = function (e) {
         return this.__data__.get(e)
-    }, de.prototype.has = function(e) {
+    }, de.prototype.has = function (e) {
         return this.__data__.has(e)
-    }, de.prototype.set = function(e, a) {
+    }, de.prototype.set = function (e, a) {
         var s = this.__data__;
         if (s instanceof C) {
             var t = s.__data__;
@@ -610,11 +659,11 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }
         return s.set(e, a), this.size = s.size, this
     };
-    var ue = function() {
+    var ue = function () {
         try {
             var e = ae(Object, "defineProperty");
             return e({}, "", {}), e
-        } catch (e) {}
+        } catch (e) { }
     }();
 
     function ce(e, a, s) {
@@ -629,16 +678,16 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     function pe(e, a, s) {
         (void 0 !== s && !q(e[a], s) || void 0 === s && !(a in e)) && ce(e, a, s)
     }
-    var me, he = function(e, a, s) {
-            for (var t = -1, o = Object(e), n = s(e), r = n.length; r--;) {
-                var i = n[me ? r : ++t];
-                if (!1 === a(o[i], i, o)) break
-            }
-            return e
-        },
+    var me, he = function (e, a, s) {
+        for (var t = -1, o = Object(e), n = s(e), r = n.length; r--;) {
+            var i = n[me ? r : ++t];
+            if (!1 === a(o[i], i, o)) break
+        }
+        return e
+    },
         ye = "object" == (void 0 === e ? "undefined" : a(e)) && e && !e.nodeType && e,
         ge = ye && "object" == ("undefined" == typeof module ? "undefined" : a(module)) && module && !
-        module.nodeType && module,
+            module.nodeType && module,
         be = ge && ge.exports === ye ? I.Buffer : void 0,
         fe = be ? be.allocUnsafe : void 0;
     var ke = I.Uint8Array;
@@ -649,9 +698,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         return new e.constructor(o, e.byteOffset, e.length)
     }
     var we = Object.create,
-        xe = function() {
-            function e() {}
-            return function(a) {
+        xe = function () {
+            function e() { }
+            return function (a) {
                 if (!G(a)) return {};
                 if (we) return we(a);
                 e.prototype = a;
@@ -659,9 +708,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 return e.prototype = void 0, s
             }
         }();
-    var ze, je, Se = (ze = Object.getPrototypeOf, je = Object, function(e) {
-            return ze(je(e))
-        }),
+    var ze, je, Se = (ze = Object.getPrototypeOf, je = Object, function (e) {
+        return ze(je(e))
+    }),
         _e = Object.prototype;
 
     function qe(e) {
@@ -679,9 +728,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var Ce = Object.prototype,
         Le = Ce.hasOwnProperty,
         Te = Ce.propertyIsEnumerable,
-        Ie = Ae(function() {
+        Ie = Ae(function () {
             return arguments
-        }()) ? Ae : function(e) {
+        }()) ? Ae : function (e) {
             return Ee(e) && Le.call(e, "callee") && !Te.call(e, "callee")
         },
         Me = Array.isArray;
@@ -695,9 +744,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
     var Pe = "object" == (void 0 === e ? "undefined" : a(e)) && e && !e.nodeType && e,
         $e = Pe && "object" == ("undefined" == typeof module ? "undefined" : a(module)) && module && !
-        module.nodeType && module,
+            module.nodeType && module,
         He = $e && $e.exports === Pe ? I.Buffer : void 0,
-        Ne = (He ? He.isBuffer : void 0) || function() {
+        Ne = (He ? He.isBuffer : void 0) || function () {
             return !1
         },
         De = Function.prototype,
@@ -707,28 +756,28 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         We = Be.call(Object);
     var Ye = {};
     Ye["[object Float32Array]"] = Ye["[object Float64Array]"] = Ye["[object Int8Array]"] = Ye[
-            "[object Int16Array]"] = Ye["[object Int32Array]"] = Ye["[object Uint8Array]"] = Ye[
-            "[object Uint8ClampedArray]"] = Ye["[object Uint16Array]"] = Ye["[object Uint32Array]"] = !0,
+        "[object Int16Array]"] = Ye["[object Int32Array]"] = Ye["[object Uint8Array]"] = Ye[
+        "[object Uint8ClampedArray]"] = Ye["[object Uint16Array]"] = Ye["[object Uint32Array]"] = !0,
         Ye["[object Arguments]"] = Ye["[object Array]"] = Ye["[object ArrayBuffer]"] = Ye[
-            "[object Boolean]"] = Ye["[object DataView]"] = Ye["[object Date]"] = Ye["[object Error]"] =
+        "[object Boolean]"] = Ye["[object DataView]"] = Ye["[object Date]"] = Ye["[object Error]"] =
         Ye["[object Function]"] = Ye["[object Map]"] = Ye["[object Number]"] = Ye["[object Object]"] = Ye[
-            "[object RegExp]"] = Ye["[object Set]"] = Ye["[object String]"] = Ye["[object WeakMap]"] = !1;
+        "[object RegExp]"] = Ye["[object Set]"] = Ye["[object String]"] = Ye["[object WeakMap]"] = !1;
     var Je = "object" == (void 0 === e ? "undefined" : a(e)) && e && !e.nodeType && e,
         Ue = Je && "object" == ("undefined" == typeof module ? "undefined" : a(module)) && module && !
-        module.nodeType && module,
+            module.nodeType && module,
         Xe = Ue && Ue.exports === Je && L.process,
-        Ve = function() {
+        Ve = function () {
             try {
                 var e = Ue && Ue.require && Ue.require("util").types;
                 return e || Xe && Xe.binding && Xe.binding("util")
-            } catch (e) {}
+            } catch (e) { }
         }(),
         Ke = Ve && Ve.isTypedArray,
-        Qe = Ke ? function(e) {
-            return function(a) {
+        Qe = Ke ? function (e) {
+            return function (a) {
                 return e(a)
             }
-        }(Ke) : function(e) {
+        }(Ke) : function (e) {
             return Ee(e) && Oe(e.length) && !!Ye[D(e)]
         };
 
@@ -756,20 +805,20 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             o = !s && !t && Ne(e),
             n = !s && !t && !o && Qe(e),
             r = s || t || o || n,
-            i = r ? function(e, a) {
+            i = r ? function (e, a) {
                 for (var s = -1, t = Array(e); ++s < e;) t[s] = a(s);
                 return t
             }(e.length, String) : [],
             l = i.length;
         for (var d in e) !a && !oa.call(e, d) || r && ("length" == d || o && ("offset" == d || "parent" ==
-                d) || n && ("buffer" == d || "byteLength" == d || "byteOffset" == d) || ta(d, l)) || i
-            .push(d);
+            d) || n && ("buffer" == d || "byteLength" == d || "byteOffset" == d) || ta(d, l)) || i
+                .push(d);
         return i
     }
     var ra = Object.prototype.hasOwnProperty;
 
     function ia(e) {
-        if (!G(e)) return function(e) {
+        if (!G(e)) return function (e) {
             var a = [];
             if (null != e)
                 for (var s in Object(e)) a.push(s);
@@ -777,7 +826,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }(e);
         var a = qe(e),
             s = [];
-        for (var t in e)("constructor" != t || !a && ra.call(e, t)) && s.push(t);
+        for (var t in e) ("constructor" != t || !a && ra.call(e, t)) && s.push(t);
         return s
     }
 
@@ -786,7 +835,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
 
     function da(e) {
-        return function(e, a, s, t) {
+        return function (e, a, s, t) {
             var o = !s;
             s || (s = {});
             for (var n = -1, r = a.length; ++n < r;) {
@@ -810,23 +859,23 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 var m = Me(l),
                     h = !m && Ne(l),
                     y = !m && !h && Qe(l);
-                c = l, m || h || y ? Me(i) ? c = i : Ee(u = i) && Re(u) ? c = function(e, a) {
+                c = l, m || h || y ? Me(i) ? c = i : Ee(u = i) && Re(u) ? c = function (e, a) {
                     var s = -1,
                         t = e.length;
                     for (a || (a = Array(t)); ++s < t;) a[s] = e[s];
                     return a
-                }(i) : h ? (p = !1, c = function(e, a) {
+                }(i) : h ? (p = !1, c = function (e, a) {
                     if (a) return e.slice();
                     var s = e.length,
                         t = fe ? fe(s) : new e.constructor(s);
                     return e.copy(t), t
-                }(l, !0)) : y ? (p = !1, c = ve(l, !0)) : c = [] : function(e) {
+                }(l, !0)) : y ? (p = !1, c = ve(l, !0)) : c = [] : function (e) {
                     if (!Ee(e) || "[object Object]" != D(e)) return !1;
                     var a = Se(e);
                     if (null === a) return !0;
                     var s = Fe.call(a, "constructor") && a.constructor;
                     return "function" == typeof s && s instanceof s && Be.call(s) == We
-                }(l) || Ie(l) ? (c = i, Ie(i) ? c = da(i) : G(i) && !B(i) || (c = function(e) {
+                }(l) || Ie(l) ? (c = i, Ie(i) ? c = da(i) : G(i) && !B(i) || (c = function (e) {
                     return "function" != typeof e.constructor || qe(e) ? {} : xe(Se(e))
                 }(l))) : p = !1
             }
@@ -835,7 +884,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
 
     function ca(e, a, s, t, o) {
-        e !== a && he(a, (function(n, r) {
+        e !== a && he(a, (function (n, r) {
             if (o || (o = new de), G(n)) ua(e, a, r, s, ca, t, o);
             else {
                 var i = t ? t(Ze(e, r), n, r + "", e, a, o) : void 0;
@@ -862,22 +911,22 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         return e.apply(a, s)
     }
     var ha = Math.max;
-    var ya = ue ? function(e, a) {
-            return ue(e, "toString", {
-                configurable: !0,
-                enumerable: !1,
-                value: (s = a, function() {
-                    return s
-                }),
-                writable: !0
-            });
-            var s
-        } : pa,
+    var ya = ue ? function (e, a) {
+        return ue(e, "toString", {
+            configurable: !0,
+            enumerable: !1,
+            value: (s = a, function () {
+                return s
+            }),
+            writable: !0
+        });
+        var s
+    } : pa,
         ga = Date.now;
-    var ba = function(e) {
+    var ba = function (e) {
         var a = 0,
             s = 0;
-        return function() {
+        return function () {
             var t = ga(),
                 o = 16 - (t - s);
             if (s = t, o > 0) {
@@ -888,9 +937,9 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }(ya);
 
     function fa(e, a) {
-        return ba(function(e, a, s) {
+        return ba(function (e, a, s) {
             return a = ha(void 0 === a ? e.length - 1 : a, 0),
-                function() {
+                function () {
                     for (var t = arguments, o = -1, n = ha(t.length - a, 0), r = Array(n); ++o <
                         n;) r[o] = t[a + o];
                     o = -1;
@@ -899,26 +948,26 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 }
         }(e, a, pa), e + "")
     }
-    var ka, va = (ka = function(e, a, s) {
-            ca(e, a, s)
-        }, fa((function(e, s) {
-            var t = -1,
-                o = s.length,
-                n = o > 1 ? s[o - 1] : void 0,
-                r = o > 2 ? s[2] : void 0;
-            for (n = ka.length > 3 && "function" == typeof n ? (o--, n) : void 0, r &&
-                function(e, s, t) {
-                    if (!G(t)) return !1;
-                    var o = a(s);
-                    return !!("number" == o ? Re(t) && ta(s, t.length) : "string" == o && s in
-                        t) && q(t[s], e)
-                }(s[0], s[1], r) && (n = o < 3 ? void 0 : n, o = 1), e = Object(e); ++t < o;
-                ) {
-                var i = s[t];
-                i && ka(e, i, t, n)
-            }
-            return e
-        }))),
+    var ka, va = (ka = function (e, a, s) {
+        ca(e, a, s)
+    }, fa((function (e, s) {
+        var t = -1,
+            o = s.length,
+            n = o > 1 ? s[o - 1] : void 0,
+            r = o > 2 ? s[2] : void 0;
+        for (n = ka.length > 3 && "function" == typeof n ? (o--, n) : void 0, r &&
+            function (e, s, t) {
+                if (!G(t)) return !1;
+                var o = a(s);
+                return !!("number" == o ? Re(t) && ta(s, t.length) : "string" == o && s in
+                    t) && q(t[s], e)
+            }(s[0], s[1], r) && (n = o < 3 ? void 0 : n, o = 1), e = Object(e); ++t < o;
+        ) {
+            var i = s[t];
+            i && ka(e, i, t, n)
+        }
+        return e
+    }))),
         wa = "gameState",
         xa = {
             boardState: null,
@@ -933,20 +982,22 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         };
 
     function za() {
-        var e = window.localStorage.getItem(wa) || JSON.stringify(xa);
+        let date = window.localStorage.getItem("current_date");
+        var e = window.localStorage.getItem(`${wa}.${date}`) || JSON.stringify(xa);
         return JSON.parse(e)
     }
 
     function ja(e) {
         var a = za();
-        ! function(e) {
-            window.localStorage.setItem(wa, JSON.stringify(e))
+        ! function (e) {
+            let date = window.localStorage.getItem("current_date");
+            window.localStorage.setItem(`${wa}.${date}`, JSON.stringify(e))
         }(va(a, e))
     }
     var Sa = document.createElement("template");
     Sa.innerHTML =
         '\n  <style>\n  .setting {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    border-bottom: 1px solid var(--color-tone-4);\n    padding: 16px 0;\n  }\n\n  a, a:visited {\n    color: var(--color-tone-2);\n  }\n\n  .title {\n    font-size: 18px;\n  }\n  .text {\n    padding-right: 8px;\n  }\n  .description {\n    font-size: 12px;\n    color: var(--color-tone-2);\n  }\n\n  #footnote {\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    padding: 16px;\n    color: var(--color-tone-2);\n    font-size: 12px;\n    text-align: right;\n    display: flex;\n    justify-content: space-between;\n    align-items: flex-end;\n  }\n\n  #privacy-policy,\n  #copyright {\n    text-align: left;\n  }\n\n  @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {\n    .setting {\n      padding: 16px;\n    }\n  }\n\n  </style>\n  <div class="sections">\n    <section>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Hard Mode</div>\n          <div class="description">Any revealed hints must be used in subsequent guesses</div>\n        </div>\n        <div class="control">\n          <game-switch id="hard-mode" name="hard-mode"></game-switch>\n        </div>\n      </div>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Dark Theme</div>\n        </div>\n        <div class="control">\n          <game-switch id="dark-theme" name="dark-theme"></game-switch>\n        </div>\n      </div>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Color Blind Mode</div>\n          <div class="description">High contrast colors</div>\n        </div>\n        <div class="control">\n          <game-switch id="color-blind-theme" name="color-blind-theme"></game-switch>\n        </div>\n      </div>\n    </section>\n\n    <section>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Feedback</div>\n        </div>\n        <div class="control">\n          <a href="mailto:wordle@powerlanguage.co.uk?subject=Feedback" title="wordle@powerlanguage.co.uk">Email</a>\n          |\n          <a href="https://twitter.com/intent/tweet?screen_name=powerlanguish" target="blank" title="@powerlanguish">Twitter</a>\n        </div>\n      </div>\n    </section>\n  </div>\n  <div id="footnote">\n    <div>\n      <div id="privacy-policy"><a href="https://www.powerlanguage.co.uk/privacy-policy.html" target="_blank">Privacy Policy</a></div>\n      <div id="copyright">Copyright 2021-2022. All Rights Reserved.</div>\n    </div>\n    <div>\n      <div id="puzzle-number"></div>\n      <div id="hash"></div>\n    </div>\n  </div>\n';
-    var _a = function(e) {
+    var _a = function (e) {
         r(t, e);
         var a = h(t);
 
@@ -958,45 +1009,45 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }
         return o(t, [{
             key: "connectedCallback",
-            value: function() {
+            value: function () {
                 var e, a = this;
                 this.shadowRoot.appendChild(Sa.content.cloneNode(!0)), this.shadowRoot
                     .querySelector("#hash").textContent = null === (e = window
-                    .wordle) || void 0 === e ? void 0 : e.hash, this.shadowRoot
-                    .querySelector("#puzzle-number").textContent = "#".concat(this
-                        .gameApp.dayOffset), this.shadowRoot.addEventListener(
-                        "game-switch-change", (function(e) {
-                            e.stopPropagation();
-                            var s = e.detail,
-                                t = s.name,
-                                o = s.checked,
-                                n = s.disabled;
-                            a.dispatchEvent(new CustomEvent(
-                            "game-setting-change", {
-                                bubbles: !0,
-                                composed: !0,
-                                detail: {
-                                    name: t,
-                                    checked: o,
-                                    disabled: n
-                                }
-                            })), a.render()
-                        })), this.render()
+                        .wordle) || void 0 === e ? void 0 : e.hash, this.shadowRoot
+                            .querySelector("#puzzle-number").textContent = "#".concat(this
+                                .gameApp.dayOffset), this.shadowRoot.addEventListener(
+                                    "game-switch-change", (function (e) {
+                                        e.stopPropagation();
+                                        var s = e.detail,
+                                            t = s.name,
+                                            o = s.checked,
+                                            n = s.disabled;
+                                        a.dispatchEvent(new CustomEvent(
+                                            "game-setting-change", {
+                                            bubbles: !0,
+                                            composed: !0,
+                                            detail: {
+                                                name: t,
+                                                checked: o,
+                                                disabled: n
+                                            }
+                                        })), a.render()
+                                    })), this.render()
             }
         }, {
             key: "render",
-            value: function() {
+            value: function () {
                 var e = document.querySelector("body");
                 e.classList.contains("nightmode") && this.shadowRoot.querySelector(
-                        "#dark-theme").setAttribute("checked", ""), e.classList
-                    .contains("colorblind") && this.shadowRoot.querySelector(
-                        "#color-blind-theme").setAttribute("checked", "");
+                    "#dark-theme").setAttribute("checked", ""), e.classList
+                        .contains("colorblind") && this.shadowRoot.querySelector(
+                            "#color-blind-theme").setAttribute("checked", "");
                 var a = za();
                 a.hardMode && this.shadowRoot.querySelector("#hard-mode")
                     .setAttribute("checked", ""), a.hardMode || "IN_PROGRESS" !== a
-                    .gameStatus || 0 === a.rowIndex || (this.shadowRoot.querySelector(
+                        .gameStatus || 0 === a.rowIndex || (this.shadowRoot.querySelector(
                             "#hard-mode").removeAttribute("checked"), this.shadowRoot
-                        .querySelector("#hard-mode").setAttribute("disabled", ""))
+                                .querySelector("#hard-mode").setAttribute("disabled", ""))
             }
         }]), t
     }(c(HTMLElement));
@@ -1004,7 +1055,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var qa = document.createElement("template");
     qa.innerHTML =
         '\n  <style>\n    .toast {\n      position: relative;\n      margin: 16px;\n      background-color: var(--color-tone-1);\n      color: var(--color-tone-7);\n      padding: 16px;\n      border: none;\n      border-radius: 4px;\n      opacity: 1;\n      transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1);\n      font-weight: 700;\n    }\n    .win {\n      background-color: var(--color-correct);\n      color: var(--tile-text-color);\n    }\n    .fade {\n      opacity: 0;\n    }\n  </style>\n  <div class="toast"></div>\n';
-    var Ea, Aa = function(e) {
+    var Ea, Aa = function (e) {
         r(t, e);
         var a = h(t);
 
@@ -1016,16 +1067,16 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }
         return o(t, [{
             key: "connectedCallback",
-            value: function() {
+            value: function () {
                 var e = this;
                 this.shadowRoot.appendChild(qa.content.cloneNode(!0));
                 var a = this.shadowRoot.querySelector(".toast");
                 a.textContent = this.getAttribute("text"), this._duration = this
                     .getAttribute("duration") || 1e3, "Infinity" !== this._duration &&
-                    setTimeout((function() {
+                    setTimeout((function () {
                         a.classList.add("fade")
                     }), this._duration), a.addEventListener("transitionend", (
-                        function(a) {
+                        function (a) {
                             e.parentNode.removeChild(e)
                         }))
             }
@@ -1036,244 +1087,244 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         dataLayer.push(arguments)
     }
     customElements.define("game-toast", Aa), window.dataLayer = window.dataLayer || [], Ca("js",
-    new Date);
+        new Date);
     Ca("config", "G-2SSGMHY3NP", {
         app_version: null === (Ea = window.wordle) || void 0 === Ea ? void 0 : Ea.hash,
         debug_mode: 1
     });
     var La = ["cigar", "rebut", "sissy", "humph", "awake", "blush", "focal", "evade", "naval", "serve",
-            "heath", "dwarf", "model", "karma", "stink", "grade", "quiet", "bench", "abate", "feign",
-            "major", "death", "fresh", "crust", "stool", "colon", "abase", "marry", "react", "batty",
-            "pride", "floss", "helix", "croak", "staff", "paper", "unfed", "whelp", "trawl", "outdo",
-            "adobe", "crazy", "sower", "repay", "digit", "crate", "cluck", "spike", "mimic", "pound",
-            "maxim", "linen", "unmet", "flesh", "booby", "forth", "first", "stand", "belly", "ivory",
-            "seedy", "print", "yearn", "drain", "bribe", "stout", "panel", "crass", "flume", "offal",
-            "agree", "error", "swirl", "argue", "bleed", "delta", "flick", "totem", "wooer", "front",
-            "shrub", "parry", "biome", "lapel", "start", "greet", "goner", "golem", "lusty", "loopy",
-            "round", "audit", "lying", "gamma", "labor", "islet", "civic", "forge", "corny", "moult",
-            "basic", "salad", "agate", "spicy", "spray", "essay", "fjord", "spend", "kebab", "guild",
-            "aback", "motor", "alone", "hatch", "hyper", "thumb", "dowry", "ought", "belch", "dutch",
-            "pilot", "tweed", "comet", "jaunt", "enema", "steed", "abyss", "growl", "fling", "dozen",
-            "boozy", "erode", "world", "gouge", "click", "briar", "great", "altar", "pulpy", "blurt",
-            "coast", "duchy", "groin", "fixer", "group", "rogue", "badly", "smart", "pithy", "gaudy",
-            "chill", "heron", "vodka", "finer", "surer", "radio", "rouge", "perch", "retch", "wrote",
-            "clock", "tilde", "store", "prove", "bring", "solve", "cheat", "grime", "exult", "usher",
-            "epoch", "triad", "break", "rhino", "viral", "conic", "masse", "sonic", "vital", "trace",
-            "using", "peach", "champ", "baton", "brake", "pluck", "craze", "gripe", "weary", "picky",
-            "acute", "ferry", "aside", "tapir", "troll", "unify", "rebus", "boost", "truss", "siege",
-            "tiger", "banal", "slump", "crank", "gorge", "query", "drink", "favor", "abbey", "tangy",
-            "panic", "solar", "shire", "proxy", "point", "robot", "prick", "wince", "crimp", "knoll",
-            "sugar", "whack", "mount", "perky", "could", "wrung", "light", "those", "moist", "shard",
-            "pleat", "aloft", "skill", "elder", "frame", "humor", "pause", "ulcer", "ultra", "robin",
-            "cynic", "agora", "aroma", "caulk", "shake", "pupal", "dodge", "swill", "tacit", "other",
-            "thorn", "trove", "bloke", "vivid", "spill", "chant", "choke", "rupee", "nasty", "mourn",
-            "ahead", "brine", "cloth", "hoard", "sweet", "month", "lapse", "watch", "today", "focus",
-            "smelt", "tease", "cater", "movie", "lynch", "saute", "allow", "renew", "their", "slosh",
-            "purge", "chest", "depot", "epoxy", "nymph", "found", "shall", "harry", "stove", "lowly",
-            "snout", "trope", "fewer", "shawl", "natal", "fibre", "comma", "foray", "scare", "stair",
-            "black", "squad", "royal", "chunk", "mince", "slave", "shame", "cheek", "ample", "flair",
-            "foyer", "cargo", "oxide", "plant", "olive", "inert", "askew", "heist", "shown", "zesty",
-            "hasty", "trash", "fella", "larva", "forgo", "story", "hairy", "train", "homer", "badge",
-            "midst", "canny", "fetus", "butch", "farce", "slung", "tipsy", "metal", "yield", "delve",
-            "being", "scour", "glass", "gamer", "scrap", "money", "hinge", "album", "vouch", "asset",
-            "tiara", "crept", "bayou", "atoll", "manor", "creak", "showy", "phase", "froth", "depth",
-            "gloom", "flood", "trait", "girth", "piety", "payer", "goose", "float", "donor", "atone",
-            "primo", "apron", "blown", "cacao", "loser", "input", "gloat", "awful", "brink", "smite",
-            "beady", "rusty", "retro", "droll", "gawky", "hutch", "pinto", "gaily", "egret", "lilac",
-            "sever", "field", "fluff", "hydro", "flack", "agape", "wench", "voice", "stead", "stalk",
-            "berth", "madam", "night", "bland", "liver", "wedge", "augur", "roomy", "wacky", "flock",
-            "angry", "bobby", "trite", "aphid", "tryst", "midge", "power", "elope", "cinch", "motto",
-            "stomp", "upset", "bluff", "cramp", "quart", "coyly", "youth", "rhyme", "buggy", "alien",
-            "smear", "unfit", "patty", "cling", "glean", "label", "hunky", "khaki", "poker", "gruel",
-            "twice", "twang", "shrug", "treat", "unlit", "waste", "merit", "woven", "octal", "needy",
-            "clown", "widow", "irony", "ruder", "gauze", "chief", "onset", "prize", "fungi", "charm",
-            "gully", "inter", "whoop", "taunt", "leery", "class", "theme", "lofty", "tibia", "booze",
-            "alpha", "thyme", "eclat", "doubt", "parer", "chute", "stick", "trice", "alike", "sooth",
-            "recap", "saint", "liege", "glory", "grate", "admit", "brisk", "soggy", "usurp", "scald",
-            "scorn", "leave", "twine", "sting", "bough", "marsh", "sloth", "dandy", "vigor", "howdy",
-            "enjoy", "valid", "ionic", "equal", "unset", "floor", "catch", "spade", "stein", "exist",
-            "quirk", "denim", "grove", "spiel", "mummy", "fault", "foggy", "flout", "carry", "sneak",
-            "libel", "waltz", "aptly", "piney", "inept", "aloud", "photo", "dream", "stale", "vomit",
-            "ombre", "fanny", "unite", "snarl", "baker", "there", "glyph", "pooch", "hippy", "spell",
-            "folly", "louse", "gulch", "vault", "godly", "threw", "fleet", "grave", "inane", "shock",
-            "crave", "spite", "valve", "skimp", "claim", "rainy", "musty", "pique", "daddy", "quasi",
-            "arise", "aging", "valet", "opium", "avert", "stuck", "recut", "mulch", "genre", "plume",
-            "rifle", "count", "incur", "total", "wrest", "mocha", "deter", "study", "lover", "safer",
-            "rivet", "funny", "smoke", "mound", "undue", "sedan", "pagan", "swine", "guile", "gusty",
-            "equip", "tough", "canoe", "chaos", "covet", "human", "udder", "lunch", "blast", "stray",
-            "manga", "melee", "lefty", "quick", "paste", "given", "octet", "risen", "groan", "leaky",
-            "grind", "carve", "loose", "sadly", "spilt", "apple", "slack", "honey", "final", "sheen",
-            "eerie", "minty", "slick", "derby", "wharf", "spelt", "coach", "erupt", "singe", "price",
-            "spawn", "fairy", "jiffy", "filmy", "stack", "chose", "sleep", "ardor", "nanny", "niece",
-            "woozy", "handy", "grace", "ditto", "stank", "cream", "usual", "diode", "valor", "angle",
-            "ninja", "muddy", "chase", "reply", "prone", "spoil", "heart", "shade", "diner", "arson",
-            "onion", "sleet", "dowel", "couch", "palsy", "bowel", "smile", "evoke", "creek", "lance",
-            "eagle", "idiot", "siren", "built", "embed", "award", "dross", "annul", "goody", "frown",
-            "patio", "laden", "humid", "elite", "lymph", "edify", "might", "reset", "visit", "gusto",
-            "purse", "vapor", "crock", "write", "sunny", "loath", "chaff", "slide", "queer", "venom",
-            "stamp", "sorry", "still", "acorn", "aping", "pushy", "tamer", "hater", "mania", "awoke",
-            "brawn", "swift", "exile", "birch", "lucky", "freer", "risky", "ghost", "plier", "lunar",
-            "winch", "snare", "nurse", "house", "borax", "nicer", "lurch", "exalt", "about", "savvy",
-            "toxin", "tunic", "pried", "inlay", "chump", "lanky", "cress", "eater", "elude", "cycle",
-            "kitty", "boule", "moron", "tenet", "place", "lobby", "plush", "vigil", "index", "blink",
-            "clung", "qualm", "croup", "clink", "juicy", "stage", "decay", "nerve", "flier", "shaft",
-            "crook", "clean", "china", "ridge", "vowel", "gnome", "snuck", "icing", "spiny", "rigor",
-            "snail", "flown", "rabid", "prose", "thank", "poppy", "budge", "fiber", "moldy", "dowdy",
-            "kneel", "track", "caddy", "quell", "dumpy", "paler", "swore", "rebar", "scuba", "splat",
-            "flyer", "horny", "mason", "doing", "ozone", "amply", "molar", "ovary", "beset", "queue",
-            "cliff", "magic", "truce", "sport", "fritz", "edict", "twirl", "verse", "llama", "eaten",
-            "range", "whisk", "hovel", "rehab", "macaw", "sigma", "spout", "verve", "sushi", "dying",
-            "fetid", "brain", "buddy", "thump", "scion", "candy", "chord", "basin", "march", "crowd",
-            "arbor", "gayly", "musky", "stain", "dally", "bless", "bravo", "stung", "title", "ruler",
-            "kiosk", "blond", "ennui", "layer", "fluid", "tatty", "score", "cutie", "zebra", "barge",
-            "matey", "bluer", "aider", "shook", "river", "privy", "betel", "frisk", "bongo", "begun",
-            "azure", "weave", "genie", "sound", "glove", "braid", "scope", "wryly", "rover", "assay",
-            "ocean", "bloom", "irate", "later", "woken", "silky", "wreck", "dwelt", "slate", "smack",
-            "solid", "amaze", "hazel", "wrist", "jolly", "globe", "flint", "rouse", "civil", "vista",
-            "relax", "cover", "alive", "beech", "jetty", "bliss", "vocal", "often", "dolly", "eight",
-            "joker", "since", "event", "ensue", "shunt", "diver", "poser", "worst", "sweep", "alley",
-            "creed", "anime", "leafy", "bosom", "dunce", "stare", "pudgy", "waive", "choir", "stood",
-            "spoke", "outgo", "delay", "bilge", "ideal", "clasp", "seize", "hotly", "laugh", "sieve",
-            "block", "meant", "grape", "noose", "hardy", "shied", "drawl", "daisy", "putty", "strut",
-            "burnt", "tulip", "crick", "idyll", "vixen", "furor", "geeky", "cough", "naive", "shoal",
-            "stork", "bathe", "aunty", "check", "prime", "brass", "outer", "furry", "razor", "elect",
-            "evict", "imply", "demur", "quota", "haven", "cavil", "swear", "crump", "dough", "gavel",
-            "wagon", "salon", "nudge", "harem", "pitch", "sworn", "pupil", "excel", "stony", "cabin",
-            "unzip", "queen", "trout", "polyp", "earth", "storm", "until", "taper", "enter", "child",
-            "adopt", "minor", "fatty", "husky", "brave", "filet", "slime", "glint", "tread", "steal",
-            "regal", "guest", "every", "murky", "share", "spore", "hoist", "buxom", "inner", "otter",
-            "dimly", "level", "sumac", "donut", "stilt", "arena", "sheet", "scrub", "fancy", "slimy",
-            "pearl", "silly", "porch", "dingo", "sepia", "amble", "shady", "bread", "friar", "reign",
-            "dairy", "quill", "cross", "brood", "tuber", "shear", "posit", "blank", "villa", "shank",
-            "piggy", "freak", "which", "among", "fecal", "shell", "would", "algae", "large", "rabbi",
-            "agony", "amuse", "bushy", "copse", "swoon", "knife", "pouch", "ascot", "plane", "crown",
-            "urban", "snide", "relay", "abide", "viola", "rajah", "straw", "dilly", "crash", "amass",
-            "third", "trick", "tutor", "woody", "blurb", "grief", "disco", "where", "sassy", "beach",
-            "sauna", "comic", "clued", "creep", "caste", "graze", "snuff", "frock", "gonad", "drunk",
-            "prong", "lurid", "steel", "halve", "buyer", "vinyl", "utile", "smell", "adage", "worry",
-            "tasty", "local", "trade", "finch", "ashen", "modal", "gaunt", "clove", "enact", "adorn",
-            "roast", "speck", "sheik", "missy", "grunt", "snoop", "party", "touch", "mafia", "emcee",
-            "array", "south", "vapid", "jelly", "skulk", "angst", "tubal", "lower", "crest", "sweat",
-            "cyber", "adore", "tardy", "swami", "notch", "groom", "roach", "hitch", "young", "align",
-            "ready", "frond", "strap", "puree", "realm", "venue", "swarm", "offer", "seven", "dryer",
-            "diary", "dryly", "drank", "acrid", "heady", "theta", "junto", "pixie", "quoth", "bonus",
-            "shalt", "penne", "amend", "datum", "build", "piano", "shelf", "lodge", "suing", "rearm",
-            "coral", "ramen", "worth", "psalm", "infer", "overt", "mayor", "ovoid", "glide", "usage",
-            "poise", "randy", "chuck", "prank", "fishy", "tooth", "ether", "drove", "idler", "swath",
-            "stint", "while", "begat", "apply", "slang", "tarot", "radar", "credo", "aware", "canon",
-            "shift", "timer", "bylaw", "serum", "three", "steak", "iliac", "shirk", "blunt", "puppy",
-            "penal", "joist", "bunny", "shape", "beget", "wheel", "adept", "stunt", "stole", "topaz",
-            "chore", "fluke", "afoot", "bloat", "bully", "dense", "caper", "sneer", "boxer", "jumbo",
-            "lunge", "space", "avail", "short", "slurp", "loyal", "flirt", "pizza", "conch", "tempo",
-            "droop", "plate", "bible", "plunk", "afoul", "savoy", "steep", "agile", "stake", "dwell",
-            "knave", "beard", "arose", "motif", "smash", "broil", "glare", "shove", "baggy", "mammy",
-            "swamp", "along", "rugby", "wager", "quack", "squat", "snaky", "debit", "mange", "skate",
-            "ninth", "joust", "tramp", "spurn", "medal", "micro", "rebel", "flank", "learn", "nadir",
-            "maple", "comfy", "remit", "gruff", "ester", "least", "mogul", "fetch", "cause", "oaken",
-            "aglow", "meaty", "gaffe", "shyly", "racer", "prowl", "thief", "stern", "poesy", "rocky",
-            "tweet", "waist", "spire", "grope", "havoc", "patsy", "truly", "forty", "deity", "uncle",
-            "swish", "giver", "preen", "bevel", "lemur", "draft", "slope", "annoy", "lingo", "bleak",
-            "ditty", "curly", "cedar", "dirge", "grown", "horde", "drool", "shuck", "crypt", "cumin",
-            "stock", "gravy", "locus", "wider", "breed", "quite", "chafe", "cache", "blimp", "deign",
-            "fiend", "logic", "cheap", "elide", "rigid", "false", "renal", "pence", "rowdy", "shoot",
-            "blaze", "envoy", "posse", "brief", "never", "abort", "mouse", "mucky", "sulky", "fiery",
-            "media", "trunk", "yeast", "clear", "skunk", "scalp", "bitty", "cider", "koala", "duvet",
-            "segue", "creme", "super", "grill", "after", "owner", "ember", "reach", "nobly", "empty",
-            "speed", "gipsy", "recur", "smock", "dread", "merge", "burst", "kappa", "amity", "shaky",
-            "hover", "carol", "snort", "synod", "faint", "haunt", "flour", "chair", "detox", "shrew",
-            "tense", "plied", "quark", "burly", "novel", "waxen", "stoic", "jerky", "blitz", "beefy",
-            "lyric", "hussy", "towel", "quilt", "below", "bingo", "wispy", "brash", "scone", "toast",
-            "easel", "saucy", "value", "spice", "honor", "route", "sharp", "bawdy", "radii", "skull",
-            "phony", "issue", "lager", "swell", "urine", "gassy", "trial", "flora", "upper", "latch",
-            "wight", "brick", "retry", "holly", "decal", "grass", "shack", "dogma", "mover", "defer",
-            "sober", "optic", "crier", "vying", "nomad", "flute", "hippo", "shark", "drier", "obese",
-            "bugle", "tawny", "chalk", "feast", "ruddy", "pedal", "scarf", "cruel", "bleat", "tidal",
-            "slush", "semen", "windy", "dusty", "sally", "igloo", "nerdy", "jewel", "shone", "whale",
-            "hymen", "abuse", "fugue", "elbow", "crumb", "pansy", "welsh", "syrup", "terse", "suave",
-            "gamut", "swung", "drake", "freed", "afire", "shirt", "grout", "oddly", "tithe", "plaid",
-            "dummy", "broom", "blind", "torch", "enemy", "again", "tying", "pesky", "alter", "gazer",
-            "noble", "ethos", "bride", "extol", "decor", "hobby", "beast", "idiom", "utter", "these",
-            "sixth", "alarm", "erase", "elegy", "spunk", "piper", "scaly", "scold", "hefty", "chick",
-            "sooty", "canal", "whiny", "slash", "quake", "joint", "swept", "prude", "heavy", "wield",
-            "femme", "lasso", "maize", "shale", "screw", "spree", "smoky", "whiff", "scent", "glade",
-            "spent", "prism", "stoke", "riper", "orbit", "cocoa", "guilt", "humus", "shush", "table",
-            "smirk", "wrong", "noisy", "alert", "shiny", "elate", "resin", "whole", "hunch", "pixel",
-            "polar", "hotel", "sword", "cleat", "mango", "rumba", "puffy", "filly", "billy", "leash",
-            "clout", "dance", "ovate", "facet", "chili", "paint", "liner", "curio", "salty", "audio",
-            "snake", "fable", "cloak", "navel", "spurt", "pesto", "balmy", "flash", "unwed", "early",
-            "churn", "weedy", "stump", "lease", "witty", "wimpy", "spoof", "saner", "blend", "salsa",
-            "thick", "warty", "manic", "blare", "squib", "spoon", "probe", "crepe", "knack", "force",
-            "debut", "order", "haste", "teeth", "agent", "widen", "icily", "slice", "ingot", "clash",
-            "juror", "blood", "abode", "throw", "unity", "pivot", "slept", "troop", "spare", "sewer",
-            "parse", "morph", "cacti", "tacky", "spool", "demon", "moody", "annex", "begin", "fuzzy",
-            "patch", "water", "lumpy", "admin", "omega", "limit", "tabby", "macho", "aisle", "skiff",
-            "basis", "plank", "verge", "botch", "crawl", "lousy", "slain", "cubic", "raise", "wrack",
-            "guide", "foist", "cameo", "under", "actor", "revue", "fraud", "harpy", "scoop", "climb",
-            "refer", "olden", "clerk", "debar", "tally", "ethic", "cairn", "tulle", "ghoul", "hilly",
-            "crude", "apart", "scale", "older", "plain", "sperm", "briny", "abbot", "rerun", "quest",
-            "crisp", "bound", "befit", "drawn", "suite", "itchy", "cheer", "bagel", "guess", "broad",
-            "axiom", "chard", "caput", "leant", "harsh", "curse", "proud", "swing", "opine", "taste",
-            "lupus", "gumbo", "miner", "green", "chasm", "lipid", "topic", "armor", "brush", "crane",
-            "mural", "abled", "habit", "bossy", "maker", "dusky", "dizzy", "lithe", "brook", "jazzy",
-            "fifty", "sense", "giant", "surly", "legal", "fatal", "flunk", "began", "prune", "small",
-            "slant", "scoff", "torus", "ninny", "covey", "viper", "taken", "moral", "vogue", "owing",
-            "token", "entry", "booth", "voter", "chide", "elfin", "ebony", "neigh", "minim", "melon",
-            "kneed", "decoy", "voila", "ankle", "arrow", "mushy", "tribe", "cease", "eager", "birth",
-            "graph", "odder", "terra", "weird", "tried", "clack", "color", "rough", "weigh", "uncut",
-            "ladle", "strip", "craft", "minus", "dicey", "titan", "lucid", "vicar", "dress", "ditch",
-            "gypsy", "pasta", "taffy", "flame", "swoop", "aloof", "sight", "broke", "teary", "chart",
-            "sixty", "wordy", "sheer", "leper", "nosey", "bulge", "savor", "clamp", "funky", "foamy",
-            "toxic", "brand", "plumb", "dingy", "butte", "drill", "tripe", "bicep", "tenor", "krill",
-            "worse", "drama", "hyena", "think", "ratio", "cobra", "basil", "scrum", "bused", "phone",
-            "court", "camel", "proof", "heard", "angel", "petal", "pouty", "throb", "maybe", "fetal",
-            "sprig", "spine", "shout", "cadet", "macro", "dodgy", "satyr", "rarer", "binge", "trend",
-            "nutty", "leapt", "amiss", "split", "myrrh", "width", "sonar", "tower", "baron", "fever",
-            "waver", "spark", "belie", "sloop", "expel", "smote", "baler", "above", "north", "wafer",
-            "scant", "frill", "awash", "snack", "scowl", "frail", "drift", "limbo", "fence", "motel",
-            "ounce", "wreak", "revel", "talon", "prior", "knelt", "cello", "flake", "debug", "anode",
-            "crime", "salve", "scout", "imbue", "pinky", "stave", "vague", "chock", "fight", "video",
-            "stone", "teach", "cleft", "frost", "prawn", "booty", "twist", "apnea", "stiff", "plaza",
-            "ledge", "tweak", "board", "grant", "medic", "bacon", "cable", "brawl", "slunk", "raspy",
-            "forum", "drone", "women", "mucus", "boast", "toddy", "coven", "tumor", "truer", "wrath",
-            "stall", "steam", "axial", "purer", "daily", "trail", "niche", "mealy", "juice", "nylon",
-            "plump", "merry", "flail", "papal", "wheat", "berry", "cower", "erect", "brute", "leggy",
-            "snipe", "sinew", "skier", "penny", "jumpy", "rally", "umbra", "scary", "modem", "gross",
-            "avian", "greed", "satin", "tonic", "parka", "sniff", "livid", "stark", "trump", "giddy",
-            "reuse", "taboo", "avoid", "quote", "devil", "liken", "gloss", "gayer", "beret", "noise",
-            "gland", "dealt", "sling", "rumor", "opera", "thigh", "tonga", "flare", "wound", "white",
-            "bulky", "etude", "horse", "circa", "paddy", "inbox", "fizzy", "grain", "exert", "surge",
-            "gleam", "belle", "salvo", "crush", "fruit", "sappy", "taker", "tract", "ovine", "spiky",
-            "frank", "reedy", "filth", "spasm", "heave", "mambo", "right", "clank", "trust", "lumen",
-            "borne", "spook", "sauce", "amber", "lathe", "carat", "corer", "dirty", "slyly", "affix",
-            "alloy", "taint", "sheep", "kinky", "wooly", "mauve", "flung", "yacht", "fried", "quail",
-            "brunt", "grimy", "curvy", "cagey", "rinse", "deuce", "state", "grasp", "milky", "bison",
-            "graft", "sandy", "baste", "flask", "hedge", "girly", "swash", "boney", "coupe", "endow",
-            "abhor", "welch", "blade", "tight", "geese", "miser", "mirth", "cloud", "cabal", "leech",
-            "close", "tenth", "pecan", "droit", "grail", "clone", "guise", "ralph", "tango", "biddy",
-            "smith", "mower", "payee", "serif", "drape", "fifth", "spank", "glaze", "allot", "truck",
-            "kayak", "virus", "testy", "tepee", "fully", "zonal", "metro", "curry", "grand", "banjo",
-            "axion", "bezel", "occur", "chain", "nasal", "gooey", "filer", "brace", "allay", "pubic",
-            "raven", "plead", "gnash", "flaky", "munch", "dully", "eking", "thing", "slink", "hurry",
-            "theft", "shorn", "pygmy", "ranch", "wring", "lemon", "shore", "mamma", "froze", "newer",
-            "style", "moose", "antic", "drown", "vegan", "chess", "guppy", "union", "lever", "lorry",
-            "image", "cabby", "druid", "exact", "truth", "dopey", "spear", "cried", "chime", "crony",
-            "stunk", "timid", "batch", "gauge", "rotor", "crack", "curve", "latte", "witch", "bunch",
-            "repel", "anvil", "soapy", "meter", "broth", "madly", "dried", "scene", "known", "magma",
-            "roost", "woman", "thong", "punch", "pasty", "downy", "knead", "whirl", "rapid", "clang",
-            "anger", "drive", "goofy", "email", "music", "stuff", "bleep", "rider", "mecca", "folio",
-            "setup", "verso", "quash", "fauna", "gummy", "happy", "newly", "fussy", "relic", "guava",
-            "ratty", "fudge", "femur", "chirp", "forte", "alibi", "whine", "petty", "golly", "plait",
-            "fleck", "felon", "gourd", "brown", "thrum", "ficus", "stash", "decry", "wiser", "junta",
-            "visor", "daunt", "scree", "impel", "await", "press", "whose", "turbo", "stoop", "speak",
-            "mangy", "eying", "inlet", "crone", "pulse", "mossy", "staid", "hence", "pinch", "teddy",
-            "sully", "snore", "ripen", "snowy", "attic", "going", "leach", "mouth", "hound", "clump",
-            "tonal", "bigot", "peril", "piece", "blame", "haute", "spied", "undid", "intro", "basal",
-            "shine", "gecko", "rodeo", "guard", "steer", "loamy", "scamp", "scram", "manly", "hello",
-            "vaunt", "organ", "feral", "knock", "extra", "condo", "adapt", "willy", "polka", "rayon",
-            "skirt", "faith", "torso", "match", "mercy", "tepid", "sleek", "riser", "twixt", "peace",
-            "flush", "catty", "login", "eject", "roger", "rival", "untie", "refit", "aorta", "adult",
-            "judge", "rower", "artsy", "rural", "shave"
-        ],
+        "heath", "dwarf", "model", "karma", "stink", "grade", "quiet", "bench", "abate", "feign",
+        "major", "death", "fresh", "crust", "stool", "colon", "abase", "marry", "react", "batty",
+        "pride", "floss", "helix", "croak", "staff", "paper", "unfed", "whelp", "trawl", "outdo",
+        "adobe", "crazy", "sower", "repay", "digit", "crate", "cluck", "spike", "mimic", "pound",
+        "maxim", "linen", "unmet", "flesh", "booby", "forth", "first", "stand", "belly", "ivory",
+        "seedy", "print", "yearn", "drain", "bribe", "stout", "panel", "crass", "flume", "offal",
+        "agree", "error", "swirl", "argue", "bleed", "delta", "flick", "totem", "wooer", "front",
+        "shrub", "parry", "biome", "lapel", "start", "greet", "goner", "golem", "lusty", "loopy",
+        "round", "audit", "lying", "gamma", "labor", "islet", "civic", "forge", "corny", "moult",
+        "basic", "salad", "agate", "spicy", "spray", "essay", "fjord", "spend", "kebab", "guild",
+        "aback", "motor", "alone", "hatch", "hyper", "thumb", "dowry", "ought", "belch", "dutch",
+        "pilot", "tweed", "comet", "jaunt", "enema", "steed", "abyss", "growl", "fling", "dozen",
+        "boozy", "erode", "world", "gouge", "click", "briar", "great", "altar", "pulpy", "blurt",
+        "coast", "duchy", "groin", "fixer", "group", "rogue", "badly", "smart", "pithy", "gaudy",
+        "chill", "heron", "vodka", "finer", "surer", "radio", "rouge", "perch", "retch", "wrote",
+        "clock", "tilde", "store", "prove", "bring", "solve", "cheat", "grime", "exult", "usher",
+        "epoch", "triad", "break", "rhino", "viral", "conic", "masse", "sonic", "vital", "trace",
+        "using", "peach", "champ", "baton", "brake", "pluck", "craze", "gripe", "weary", "picky",
+        "acute", "ferry", "aside", "tapir", "troll", "unify", "rebus", "boost", "truss", "siege",
+        "tiger", "banal", "slump", "crank", "gorge", "query", "drink", "favor", "abbey", "tangy",
+        "panic", "solar", "shire", "proxy", "point", "robot", "prick", "wince", "crimp", "knoll",
+        "sugar", "whack", "mount", "perky", "could", "wrung", "light", "those", "moist", "shard",
+        "pleat", "aloft", "skill", "elder", "frame", "humor", "pause", "ulcer", "ultra", "robin",
+        "cynic", "agora", "aroma", "caulk", "shake", "pupal", "dodge", "swill", "tacit", "other",
+        "thorn", "trove", "bloke", "vivid", "spill", "chant", "choke", "rupee", "nasty", "mourn",
+        "ahead", "brine", "cloth", "hoard", "sweet", "month", "lapse", "watch", "today", "focus",
+        "smelt", "tease", "cater", "movie", "lynch", "saute", "allow", "renew", "their", "slosh",
+        "purge", "chest", "depot", "epoxy", "nymph", "found", "shall", "harry", "stove", "lowly",
+        "snout", "trope", "fewer", "shawl", "natal", "fibre", "comma", "foray", "scare", "stair",
+        "black", "squad", "royal", "chunk", "mince", "slave", "shame", "cheek", "ample", "flair",
+        "foyer", "cargo", "oxide", "plant", "olive", "inert", "askew", "heist", "shown", "zesty",
+        "hasty", "trash", "fella", "larva", "forgo", "story", "hairy", "train", "homer", "badge",
+        "midst", "canny", "fetus", "butch", "farce", "slung", "tipsy", "metal", "yield", "delve",
+        "being", "scour", "glass", "gamer", "scrap", "money", "hinge", "album", "vouch", "asset",
+        "tiara", "crept", "bayou", "atoll", "manor", "creak", "showy", "phase", "froth", "depth",
+        "gloom", "flood", "trait", "girth", "piety", "payer", "goose", "float", "donor", "atone",
+        "primo", "apron", "blown", "cacao", "loser", "input", "gloat", "awful", "brink", "smite",
+        "beady", "rusty", "retro", "droll", "gawky", "hutch", "pinto", "gaily", "egret", "lilac",
+        "sever", "field", "fluff", "hydro", "flack", "agape", "wench", "voice", "stead", "stalk",
+        "berth", "madam", "night", "bland", "liver", "wedge", "augur", "roomy", "wacky", "flock",
+        "angry", "bobby", "trite", "aphid", "tryst", "midge", "power", "elope", "cinch", "motto",
+        "stomp", "upset", "bluff", "cramp", "quart", "coyly", "youth", "rhyme", "buggy", "alien",
+        "smear", "unfit", "patty", "cling", "glean", "label", "hunky", "khaki", "poker", "gruel",
+        "twice", "twang", "shrug", "treat", "unlit", "waste", "merit", "woven", "octal", "needy",
+        "clown", "widow", "irony", "ruder", "gauze", "chief", "onset", "prize", "fungi", "charm",
+        "gully", "inter", "whoop", "taunt", "leery", "class", "theme", "lofty", "tibia", "booze",
+        "alpha", "thyme", "eclat", "doubt", "parer", "chute", "stick", "trice", "alike", "sooth",
+        "recap", "saint", "liege", "glory", "grate", "admit", "brisk", "soggy", "usurp", "scald",
+        "scorn", "leave", "twine", "sting", "bough", "marsh", "sloth", "dandy", "vigor", "howdy",
+        "enjoy", "valid", "ionic", "equal", "unset", "floor", "catch", "spade", "stein", "exist",
+        "quirk", "denim", "grove", "spiel", "mummy", "fault", "foggy", "flout", "carry", "sneak",
+        "libel", "waltz", "aptly", "piney", "inept", "aloud", "photo", "dream", "stale", "vomit",
+        "ombre", "fanny", "unite", "snarl", "baker", "there", "glyph", "pooch", "hippy", "spell",
+        "folly", "louse", "gulch", "vault", "godly", "threw", "fleet", "grave", "inane", "shock",
+        "crave", "spite", "valve", "skimp", "claim", "rainy", "musty", "pique", "daddy", "quasi",
+        "arise", "aging", "valet", "opium", "avert", "stuck", "recut", "mulch", "genre", "plume",
+        "rifle", "count", "incur", "total", "wrest", "mocha", "deter", "study", "lover", "safer",
+        "rivet", "funny", "smoke", "mound", "undue", "sedan", "pagan", "swine", "guile", "gusty",
+        "equip", "tough", "canoe", "chaos", "covet", "human", "udder", "lunch", "blast", "stray",
+        "manga", "melee", "lefty", "quick", "paste", "given", "octet", "risen", "groan", "leaky",
+        "grind", "carve", "loose", "sadly", "spilt", "apple", "slack", "honey", "final", "sheen",
+        "eerie", "minty", "slick", "derby", "wharf", "spelt", "coach", "erupt", "singe", "price",
+        "spawn", "fairy", "jiffy", "filmy", "stack", "chose", "sleep", "ardor", "nanny", "niece",
+        "woozy", "handy", "grace", "ditto", "stank", "cream", "usual", "diode", "valor", "angle",
+        "ninja", "muddy", "chase", "reply", "prone", "spoil", "heart", "shade", "diner", "arson",
+        "onion", "sleet", "dowel", "couch", "palsy", "bowel", "smile", "evoke", "creek", "lance",
+        "eagle", "idiot", "siren", "built", "embed", "award", "dross", "annul", "goody", "frown",
+        "patio", "laden", "humid", "elite", "lymph", "edify", "might", "reset", "visit", "gusto",
+        "purse", "vapor", "crock", "write", "sunny", "loath", "chaff", "slide", "queer", "venom",
+        "stamp", "sorry", "still", "acorn", "aping", "pushy", "tamer", "hater", "mania", "awoke",
+        "brawn", "swift", "exile", "birch", "lucky", "freer", "risky", "ghost", "plier", "lunar",
+        "winch", "snare", "nurse", "house", "borax", "nicer", "lurch", "exalt", "about", "savvy",
+        "toxin", "tunic", "pried", "inlay", "chump", "lanky", "cress", "eater", "elude", "cycle",
+        "kitty", "boule", "moron", "tenet", "place", "lobby", "plush", "vigil", "index", "blink",
+        "clung", "qualm", "croup", "clink", "juicy", "stage", "decay", "nerve", "flier", "shaft",
+        "crook", "clean", "china", "ridge", "vowel", "gnome", "snuck", "icing", "spiny", "rigor",
+        "snail", "flown", "rabid", "prose", "thank", "poppy", "budge", "fiber", "moldy", "dowdy",
+        "kneel", "track", "caddy", "quell", "dumpy", "paler", "swore", "rebar", "scuba", "splat",
+        "flyer", "horny", "mason", "doing", "ozone", "amply", "molar", "ovary", "beset", "queue",
+        "cliff", "magic", "truce", "sport", "fritz", "edict", "twirl", "verse", "llama", "eaten",
+        "range", "whisk", "hovel", "rehab", "macaw", "sigma", "spout", "verve", "sushi", "dying",
+        "fetid", "brain", "buddy", "thump", "scion", "candy", "chord", "basin", "march", "crowd",
+        "arbor", "gayly", "musky", "stain", "dally", "bless", "bravo", "stung", "title", "ruler",
+        "kiosk", "blond", "ennui", "layer", "fluid", "tatty", "score", "cutie", "zebra", "barge",
+        "matey", "bluer", "aider", "shook", "river", "privy", "betel", "frisk", "bongo", "begun",
+        "azure", "weave", "genie", "sound", "glove", "braid", "scope", "wryly", "rover", "assay",
+        "ocean", "bloom", "irate", "later", "woken", "silky", "wreck", "dwelt", "slate", "smack",
+        "solid", "amaze", "hazel", "wrist", "jolly", "globe", "flint", "rouse", "civil", "vista",
+        "relax", "cover", "alive", "beech", "jetty", "bliss", "vocal", "often", "dolly", "eight",
+        "joker", "since", "event", "ensue", "shunt", "diver", "poser", "worst", "sweep", "alley",
+        "creed", "anime", "leafy", "bosom", "dunce", "stare", "pudgy", "waive", "choir", "stood",
+        "spoke", "outgo", "delay", "bilge", "ideal", "clasp", "seize", "hotly", "laugh", "sieve",
+        "block", "meant", "grape", "noose", "hardy", "shied", "drawl", "daisy", "putty", "strut",
+        "burnt", "tulip", "crick", "idyll", "vixen", "furor", "geeky", "cough", "naive", "shoal",
+        "stork", "bathe", "aunty", "check", "prime", "brass", "outer", "furry", "razor", "elect",
+        "evict", "imply", "demur", "quota", "haven", "cavil", "swear", "crump", "dough", "gavel",
+        "wagon", "salon", "nudge", "harem", "pitch", "sworn", "pupil", "excel", "stony", "cabin",
+        "unzip", "queen", "trout", "polyp", "earth", "storm", "until", "taper", "enter", "child",
+        "adopt", "minor", "fatty", "husky", "brave", "filet", "slime", "glint", "tread", "steal",
+        "regal", "guest", "every", "murky", "share", "spore", "hoist", "buxom", "inner", "otter",
+        "dimly", "level", "sumac", "donut", "stilt", "arena", "sheet", "scrub", "fancy", "slimy",
+        "pearl", "silly", "porch", "dingo", "sepia", "amble", "shady", "bread", "friar", "reign",
+        "dairy", "quill", "cross", "brood", "tuber", "shear", "posit", "blank", "villa", "shank",
+        "piggy", "freak", "which", "among", "fecal", "shell", "would", "algae", "large", "rabbi",
+        "agony", "amuse", "bushy", "copse", "swoon", "knife", "pouch", "ascot", "plane", "crown",
+        "urban", "snide", "relay", "abide", "viola", "rajah", "straw", "dilly", "crash", "amass",
+        "third", "trick", "tutor", "woody", "blurb", "grief", "disco", "where", "sassy", "beach",
+        "sauna", "comic", "clued", "creep", "caste", "graze", "snuff", "frock", "gonad", "drunk",
+        "prong", "lurid", "steel", "halve", "buyer", "vinyl", "utile", "smell", "adage", "worry",
+        "tasty", "local", "trade", "finch", "ashen", "modal", "gaunt", "clove", "enact", "adorn",
+        "roast", "speck", "sheik", "missy", "grunt", "snoop", "party", "touch", "mafia", "emcee",
+        "array", "south", "vapid", "jelly", "skulk", "angst", "tubal", "lower", "crest", "sweat",
+        "cyber", "adore", "tardy", "swami", "notch", "groom", "roach", "hitch", "young", "align",
+        "ready", "frond", "strap", "puree", "realm", "venue", "swarm", "offer", "seven", "dryer",
+        "diary", "dryly", "drank", "acrid", "heady", "theta", "junto", "pixie", "quoth", "bonus",
+        "shalt", "penne", "amend", "datum", "build", "piano", "shelf", "lodge", "suing", "rearm",
+        "coral", "ramen", "worth", "psalm", "infer", "overt", "mayor", "ovoid", "glide", "usage",
+        "poise", "randy", "chuck", "prank", "fishy", "tooth", "ether", "drove", "idler", "swath",
+        "stint", "while", "begat", "apply", "slang", "tarot", "radar", "credo", "aware", "canon",
+        "shift", "timer", "bylaw", "serum", "three", "steak", "iliac", "shirk", "blunt", "puppy",
+        "penal", "joist", "bunny", "shape", "beget", "wheel", "adept", "stunt", "stole", "topaz",
+        "chore", "fluke", "afoot", "bloat", "bully", "dense", "caper", "sneer", "boxer", "jumbo",
+        "lunge", "space", "avail", "short", "slurp", "loyal", "flirt", "pizza", "conch", "tempo",
+        "droop", "plate", "bible", "plunk", "afoul", "savoy", "steep", "agile", "stake", "dwell",
+        "knave", "beard", "arose", "motif", "smash", "broil", "glare", "shove", "baggy", "mammy",
+        "swamp", "along", "rugby", "wager", "quack", "squat", "snaky", "debit", "mange", "skate",
+        "ninth", "joust", "tramp", "spurn", "medal", "micro", "rebel", "flank", "learn", "nadir",
+        "maple", "comfy", "remit", "gruff", "ester", "least", "mogul", "fetch", "cause", "oaken",
+        "aglow", "meaty", "gaffe", "shyly", "racer", "prowl", "thief", "stern", "poesy", "rocky",
+        "tweet", "waist", "spire", "grope", "havoc", "patsy", "truly", "forty", "deity", "uncle",
+        "swish", "giver", "preen", "bevel", "lemur", "draft", "slope", "annoy", "lingo", "bleak",
+        "ditty", "curly", "cedar", "dirge", "grown", "horde", "drool", "shuck", "crypt", "cumin",
+        "stock", "gravy", "locus", "wider", "breed", "quite", "chafe", "cache", "blimp", "deign",
+        "fiend", "logic", "cheap", "elide", "rigid", "false", "renal", "pence", "rowdy", "shoot",
+        "blaze", "envoy", "posse", "brief", "never", "abort", "mouse", "mucky", "sulky", "fiery",
+        "media", "trunk", "yeast", "clear", "skunk", "scalp", "bitty", "cider", "koala", "duvet",
+        "segue", "creme", "super", "grill", "after", "owner", "ember", "reach", "nobly", "empty",
+        "speed", "gipsy", "recur", "smock", "dread", "merge", "burst", "kappa", "amity", "shaky",
+        "hover", "carol", "snort", "synod", "faint", "haunt", "flour", "chair", "detox", "shrew",
+        "tense", "plied", "quark", "burly", "novel", "waxen", "stoic", "jerky", "blitz", "beefy",
+        "lyric", "hussy", "towel", "quilt", "below", "bingo", "wispy", "brash", "scone", "toast",
+        "easel", "saucy", "value", "spice", "honor", "route", "sharp", "bawdy", "radii", "skull",
+        "phony", "issue", "lager", "swell", "urine", "gassy", "trial", "flora", "upper", "latch",
+        "wight", "brick", "retry", "holly", "decal", "grass", "shack", "dogma", "mover", "defer",
+        "sober", "optic", "crier", "vying", "nomad", "flute", "hippo", "shark", "drier", "obese",
+        "bugle", "tawny", "chalk", "feast", "ruddy", "pedal", "scarf", "cruel", "bleat", "tidal",
+        "slush", "semen", "windy", "dusty", "sally", "igloo", "nerdy", "jewel", "shone", "whale",
+        "hymen", "abuse", "fugue", "elbow", "crumb", "pansy", "welsh", "syrup", "terse", "suave",
+        "gamut", "swung", "drake", "freed", "afire", "shirt", "grout", "oddly", "tithe", "plaid",
+        "dummy", "broom", "blind", "torch", "enemy", "again", "tying", "pesky", "alter", "gazer",
+        "noble", "ethos", "bride", "extol", "decor", "hobby", "beast", "idiom", "utter", "these",
+        "sixth", "alarm", "erase", "elegy", "spunk", "piper", "scaly", "scold", "hefty", "chick",
+        "sooty", "canal", "whiny", "slash", "quake", "joint", "swept", "prude", "heavy", "wield",
+        "femme", "lasso", "maize", "shale", "screw", "spree", "smoky", "whiff", "scent", "glade",
+        "spent", "prism", "stoke", "riper", "orbit", "cocoa", "guilt", "humus", "shush", "table",
+        "smirk", "wrong", "noisy", "alert", "shiny", "elate", "resin", "whole", "hunch", "pixel",
+        "polar", "hotel", "sword", "cleat", "mango", "rumba", "puffy", "filly", "billy", "leash",
+        "clout", "dance", "ovate", "facet", "chili", "paint", "liner", "curio", "salty", "audio",
+        "snake", "fable", "cloak", "navel", "spurt", "pesto", "balmy", "flash", "unwed", "early",
+        "churn", "weedy", "stump", "lease", "witty", "wimpy", "spoof", "saner", "blend", "salsa",
+        "thick", "warty", "manic", "blare", "squib", "spoon", "probe", "crepe", "knack", "force",
+        "debut", "order", "haste", "teeth", "agent", "widen", "icily", "slice", "ingot", "clash",
+        "juror", "blood", "abode", "throw", "unity", "pivot", "slept", "troop", "spare", "sewer",
+        "parse", "morph", "cacti", "tacky", "spool", "demon", "moody", "annex", "begin", "fuzzy",
+        "patch", "water", "lumpy", "admin", "omega", "limit", "tabby", "macho", "aisle", "skiff",
+        "basis", "plank", "verge", "botch", "crawl", "lousy", "slain", "cubic", "raise", "wrack",
+        "guide", "foist", "cameo", "under", "actor", "revue", "fraud", "harpy", "scoop", "climb",
+        "refer", "olden", "clerk", "debar", "tally", "ethic", "cairn", "tulle", "ghoul", "hilly",
+        "crude", "apart", "scale", "older", "plain", "sperm", "briny", "abbot", "rerun", "quest",
+        "crisp", "bound", "befit", "drawn", "suite", "itchy", "cheer", "bagel", "guess", "broad",
+        "axiom", "chard", "caput", "leant", "harsh", "curse", "proud", "swing", "opine", "taste",
+        "lupus", "gumbo", "miner", "green", "chasm", "lipid", "topic", "armor", "brush", "crane",
+        "mural", "abled", "habit", "bossy", "maker", "dusky", "dizzy", "lithe", "brook", "jazzy",
+        "fifty", "sense", "giant", "surly", "legal", "fatal", "flunk", "began", "prune", "small",
+        "slant", "scoff", "torus", "ninny", "covey", "viper", "taken", "moral", "vogue", "owing",
+        "token", "entry", "booth", "voter", "chide", "elfin", "ebony", "neigh", "minim", "melon",
+        "kneed", "decoy", "voila", "ankle", "arrow", "mushy", "tribe", "cease", "eager", "birth",
+        "graph", "odder", "terra", "weird", "tried", "clack", "color", "rough", "weigh", "uncut",
+        "ladle", "strip", "craft", "minus", "dicey", "titan", "lucid", "vicar", "dress", "ditch",
+        "gypsy", "pasta", "taffy", "flame", "swoop", "aloof", "sight", "broke", "teary", "chart",
+        "sixty", "wordy", "sheer", "leper", "nosey", "bulge", "savor", "clamp", "funky", "foamy",
+        "toxic", "brand", "plumb", "dingy", "butte", "drill", "tripe", "bicep", "tenor", "krill",
+        "worse", "drama", "hyena", "think", "ratio", "cobra", "basil", "scrum", "bused", "phone",
+        "court", "camel", "proof", "heard", "angel", "petal", "pouty", "throb", "maybe", "fetal",
+        "sprig", "spine", "shout", "cadet", "macro", "dodgy", "satyr", "rarer", "binge", "trend",
+        "nutty", "leapt", "amiss", "split", "myrrh", "width", "sonar", "tower", "baron", "fever",
+        "waver", "spark", "belie", "sloop", "expel", "smote", "baler", "above", "north", "wafer",
+        "scant", "frill", "awash", "snack", "scowl", "frail", "drift", "limbo", "fence", "motel",
+        "ounce", "wreak", "revel", "talon", "prior", "knelt", "cello", "flake", "debug", "anode",
+        "crime", "salve", "scout", "imbue", "pinky", "stave", "vague", "chock", "fight", "video",
+        "stone", "teach", "cleft", "frost", "prawn", "booty", "twist", "apnea", "stiff", "plaza",
+        "ledge", "tweak", "board", "grant", "medic", "bacon", "cable", "brawl", "slunk", "raspy",
+        "forum", "drone", "women", "mucus", "boast", "toddy", "coven", "tumor", "truer", "wrath",
+        "stall", "steam", "axial", "purer", "daily", "trail", "niche", "mealy", "juice", "nylon",
+        "plump", "merry", "flail", "papal", "wheat", "berry", "cower", "erect", "brute", "leggy",
+        "snipe", "sinew", "skier", "penny", "jumpy", "rally", "umbra", "scary", "modem", "gross",
+        "avian", "greed", "satin", "tonic", "parka", "sniff", "livid", "stark", "trump", "giddy",
+        "reuse", "taboo", "avoid", "quote", "devil", "liken", "gloss", "gayer", "beret", "noise",
+        "gland", "dealt", "sling", "rumor", "opera", "thigh", "tonga", "flare", "wound", "white",
+        "bulky", "etude", "horse", "circa", "paddy", "inbox", "fizzy", "grain", "exert", "surge",
+        "gleam", "belle", "salvo", "crush", "fruit", "sappy", "taker", "tract", "ovine", "spiky",
+        "frank", "reedy", "filth", "spasm", "heave", "mambo", "right", "clank", "trust", "lumen",
+        "borne", "spook", "sauce", "amber", "lathe", "carat", "corer", "dirty", "slyly", "affix",
+        "alloy", "taint", "sheep", "kinky", "wooly", "mauve", "flung", "yacht", "fried", "quail",
+        "brunt", "grimy", "curvy", "cagey", "rinse", "deuce", "state", "grasp", "milky", "bison",
+        "graft", "sandy", "baste", "flask", "hedge", "girly", "swash", "boney", "coupe", "endow",
+        "abhor", "welch", "blade", "tight", "geese", "miser", "mirth", "cloud", "cabal", "leech",
+        "close", "tenth", "pecan", "droit", "grail", "clone", "guise", "ralph", "tango", "biddy",
+        "smith", "mower", "payee", "serif", "drape", "fifth", "spank", "glaze", "allot", "truck",
+        "kayak", "virus", "testy", "tepee", "fully", "zonal", "metro", "curry", "grand", "banjo",
+        "axion", "bezel", "occur", "chain", "nasal", "gooey", "filer", "brace", "allay", "pubic",
+        "raven", "plead", "gnash", "flaky", "munch", "dully", "eking", "thing", "slink", "hurry",
+        "theft", "shorn", "pygmy", "ranch", "wring", "lemon", "shore", "mamma", "froze", "newer",
+        "style", "moose", "antic", "drown", "vegan", "chess", "guppy", "union", "lever", "lorry",
+        "image", "cabby", "druid", "exact", "truth", "dopey", "spear", "cried", "chime", "crony",
+        "stunk", "timid", "batch", "gauge", "rotor", "crack", "curve", "latte", "witch", "bunch",
+        "repel", "anvil", "soapy", "meter", "broth", "madly", "dried", "scene", "known", "magma",
+        "roost", "woman", "thong", "punch", "pasty", "downy", "knead", "whirl", "rapid", "clang",
+        "anger", "drive", "goofy", "email", "music", "stuff", "bleep", "rider", "mecca", "folio",
+        "setup", "verso", "quash", "fauna", "gummy", "happy", "newly", "fussy", "relic", "guava",
+        "ratty", "fudge", "femur", "chirp", "forte", "alibi", "whine", "petty", "golly", "plait",
+        "fleck", "felon", "gourd", "brown", "thrum", "ficus", "stash", "decry", "wiser", "junta",
+        "visor", "daunt", "scree", "impel", "await", "press", "whose", "turbo", "stoop", "speak",
+        "mangy", "eying", "inlet", "crone", "pulse", "mossy", "staid", "hence", "pinch", "teddy",
+        "sully", "snore", "ripen", "snowy", "attic", "going", "leach", "mouth", "hound", "clump",
+        "tonal", "bigot", "peril", "piece", "blame", "haute", "spied", "undid", "intro", "basal",
+        "shine", "gecko", "rodeo", "guard", "steer", "loamy", "scamp", "scram", "manly", "hello",
+        "vaunt", "organ", "feral", "knock", "extra", "condo", "adapt", "willy", "polka", "rayon",
+        "skirt", "faith", "torso", "match", "mercy", "tepid", "sleek", "riser", "twixt", "peace",
+        "flush", "catty", "login", "eject", "roger", "rival", "untie", "refit", "aorta", "adult",
+        "judge", "rower", "artsy", "rural", "shave"
+    ],
         Ta = ["aahed", "aalii", "aargh", "aarti", "abaca", "abaci", "abacs", "abaft", "abaka", "abamp",
             "aband", "abash", "abask", "abaya", "abbas", "abbed", "abbes", "abcee", "abeam", "abear",
             "abele", "abers", "abets", "abies", "abler", "ables", "ablet", "ablow", "abmho", "abohm",
@@ -2353,7 +2404,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
 
     function Pa(e, a) {
         var s = {};
-        return e.forEach((function(e, t) {
+        return e.forEach((function (e, t) {
             if (a[t])
                 for (var o = 0; o < e.length; o++) {
                     var n = e[o],
@@ -2379,7 +2430,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
 
     function Da(e) {
         var a, s = Ga(e);
-        return a = s % La.length, La[a]
+        return a = ((La.length + s) % La.length), La[a]
     }
 
     function Ga(e) {
@@ -2425,24 +2476,41 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             t = e.numGuesses,
             o = Xa();
         a ? (o.guesses[t] += 1, s ? o.currentStreak += 1 : o.currentStreak = 1) : (o.currentStreak = 0, o
-                .guesses.fail += 1), o.maxStreak = Math.max(o.currentStreak, o.maxStreak), o
-            .gamesPlayed += 1, o.gamesWon += a ? 1 : 0, o.winPercentage = Math.round(o.gamesWon / o
-                .gamesPlayed * 100), o.averageGuesses = Math.round(Object.entries(o.guesses).reduce((
-                function(e, a) {
-                    var s = y(a, 2),
-                        t = s[0],
-                        o = s[1];
-                    return t !== Ja ? e += t * o : e
-                }), 0) / o.gamesWon),
-            function(e) {
+            .guesses.fail += 1), o.maxStreak = Math.max(o.currentStreak, o.maxStreak), o
+                .gamesPlayed += 1, o.gamesWon += a ? 1 : 0, o.winPercentage = Math.round(o.gamesWon / o
+                    .gamesPlayed * 100), o.averageGuesses = Math.round(Object.entries(o.guesses).reduce((
+                        function (e, a) {
+                            var s = y(a, 2),
+                                t = s[0],
+                                o = s[1];
+                            return t !== Ja ? e += t * o : e
+                        }), 0) / o.gamesWon),
+            function (e) {
                 window.localStorage.setItem(Ya, JSON.stringify(e))
             }(o)
     }
     var Ka = document.createElement("template");
     Ka.innerHTML =
         "\n  <style>\n  .toaster {\n    position: absolute;\n    top: 10%;\n    left: 50%;\n    transform: translate(-50%, 0);\n    pointer-events: none;\n    width: fit-content;\n  }\n  #game-toaster {\n    z-index: "
-        .concat(1e3, ";\n  }\n  #system-toaster {\n    z-index: ").concat(4e3,
-            ';\n  }\n\n  #game {\n    width: 100%;\n    max-width: var(--game-max-width);\n    margin: 0 auto;\n    height: 100%;\n    display: flex;\n    flex-direction: column;\n  }\n  header {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    height: var(--header-height);\n    color: var(--color-tone-1);\n    border-bottom: 1px solid var(--color-tone-4);\n  }\n  header .title {\n    font-weight: 700;\n    font-size: 36px;\n    letter-spacing: 0.2rem;\n    text-transform: uppercase;\n    text-align: center;\n    position: absolute;\n    left: 0;\n    right: 0;\n    pointer-events: none;\n  }\n\n  @media (max-width: 360px) {\n    header .title {\n      font-size: 22px;\n      letter-spacing: 0.1rem;\n    }\n  }\n\n  #board-container {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    flex-grow: 1;\n    overflow: hidden;\n  }\n  #board {\n    display: grid;\n    grid-template-rows: repeat(6, 1fr);\n    grid-gap: 5px;\n    padding:10px;\n    box-sizing: border-box;\n  }\n  button.icon {\n    background: none;\n    border: none;\n    cursor: pointer;\n    padding: 0 4px;\n  }\n\n  #debug-tools {\n    position: absolute;\n    bottom: 0;\n  }\n\n  </style>\n  <game-theme-manager>\n    <div id="game">\n      <header>\n        <div class="menu">\n          <button id="help-button" class="icon" aria-label="help">\n            <game-icon icon="help"></game-icon>\n          </button>\n        </div>\n        <div class="title">\n         WORDLE\n        </div>\n        <div class="menu">\n          <button id="statistics-button" class="icon" aria-label="statistics">\n            <game-icon icon="statistics"></game-icon>\n          </button>\n          <button id="settings-button" class="icon" aria-label="settings">\n            <game-icon icon="settings"></game-icon>\n          </button>\n        </div>\n      </header>\n        <div id="board-container">\n          <div id="board"></div>\n        </div>\n       <game-keyboard></game-keyboard>\n        <game-modal></game-modal>\n        <game-page></game-page>\n        <div class="toaster" id="game-toaster"></div>\n        <div class="toaster" id="system-toaster"></div>\n    </div>\n  </game-theme-manager>\n  <div id="debug-tools"></div>\n'
+            .concat(1e3, ";\n  }\n  #system-toaster {\n    z-index: ").concat(4e3,
+                `;\n  }\n\n  #game {\n    width: 100%;\n    max-width: var(--game-max-width);\n    margin: 0 auto;\n    height: 100%;\n    display: flex;\n    flex-direction: column;\n  }\n  header {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    height: var(--header-height);\n    color: var(--color-tone-1);\n    border-bottom: 1px solid var(--color-tone-4);\n  }\n  header .title {\n    font-weight: 700;\n    font-size: 36px;\n    letter-spacing: 0.2rem;\n    text-transform: uppercase;\n    text-align: center;\n    position: absolute;\n    left: 0;\n    right: 0;\n    pointer-events: none;\n  }\n\n  @media (max-width: 360px) {\n    header .title {\n      font-size: 22px;\n      letter-spacing: 0.1rem;\n    }\n  }\n\n  #board-container {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    flex-grow: 1;\n    overflow: hidden;\n  }\n  #board {\n    display: grid;\n    grid-template-rows: repeat(6, 1fr);\n    grid-gap: 5px;\n    padding:10px;\n    box-sizing: border-box;\n  }\n  button.icon {\n    background: none;\n    border: none;\n    cursor: pointer;\n    padding: 0 4px;\n  }\n\n  #debug-tools {\n    position: absolute;\n    bottom: 0;\n  }\n\n  #reset_button { 
+                    color: var(--key-evaluated-text-color);
+                    font-family: inherit;
+                    font-weight: bold;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    border: none;
+                    user-select: none;
+                    /* display: flex; */
+                    justify-content: center;
+                    align-items: center;
+                    text-transform: uppercase;
+                    -webkit-tap-highlight-color: rgba(0,0,0,0.3);
+                    /* width: 100%; */
+                    font-size: 20px;
+                    height: 52px;
+                    -webkit-filter: brightness(100%);
+                  }  </style>\n  <game-theme-manager>\n    <div id="game">\n      <header>\n        <div class="menu">\n          <button id="help-button" class="icon" aria-label="help">\n            <game-icon icon="help"></game-icon>\n          </button>\n      <game-icon icon="reset" id="reset_button"></button>     </div>\n        <div class="title">\n         WORDLE\n        </div>\n        <div class="menu">\n          <button id="statistics-button" class="icon" aria-label="statistics">\n            <game-icon icon="statistics"></game-icon>\n          </button>\n          <button id="settings-button" class="icon" aria-label="settings">\n            <game-icon icon="settings"></game-icon>\n          </button>\n        </div>\n      </header>\n        <div id="board-container">\n          <div id="board"></div>\n        </div>\n    <date-picker> </date-picker>  \n <game-keyboard></game-keyboard>\n        <game-modal></game-modal>\n        <game-page></game-page>\n        <div class="toaster" id="game-toaster"></div>\n        <div class="toaster" id="system-toaster"></div>\n    </div>\n  </game-theme-manager>\n  <div id="debug-tools"></div>\n`
             );
     var Qa = document.createElement("template");
     Qa.innerHTML =
@@ -2451,43 +2519,51 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         es = "WIN",
         as = "FAIL",
         ss = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"],
-        ts = function(e) {
+        ts = function (e) {
             r(t, e);
             var a = h(t);
 
             function t() {
                 var e;
                 s(this, t), n(p(e = a.call(this)), "tileIndex", 0), n(p(e), "rowIndex", 0), n(p(e),
-                        "solution", void 0), n(p(e), "boardState", void 0), n(p(e), "evaluations",
-                    void 0), n(p(e), "canInput", !0), n(p(e), "gameStatus", Za), n(p(e),
-                        "letterEvaluations", {}), n(p(e), "$board", void 0), n(p(e), "$keyboard", void 0),
+                    "solution", void 0), n(p(e), "boardState", void 0), n(p(e), "evaluations",
+                        void 0), n(p(e), "canInput", !0), n(p(e), "gameStatus", Za), n(p(e),
+                            "letterEvaluations", {}), n(p(e), "$board", void 0), n(p(e), "$keyboard", void 0),
                     n(p(e), "$game", void 0), n(p(e), "today", void 0), n(p(e), "lastPlayedTs", void 0),
                     n(p(e), "lastCompletedTs", void 0), n(p(e), "hardMode", void 0), n(p(e), "dayOffset",
                         void 0), e.attachShadow({
-                        mode: "open"
-                    }), e.today = new Date;
+                            mode: "open"
+                        });
+                // e.today = new Date;
+                if (!window.localStorage.getItem('current_date')) {
+                    window.localStorage.setItem('current_date', format_date(new Date()));
+                }
+                e.today = new Date(window.localStorage.getItem('current_date'));
                 var o = za();
-                return e.lastPlayedTs = o.lastPlayedTs, !e.lastPlayedTs || Na(new Date(e.lastPlayedTs), e
-                    .today) >= 1 ? (e.boardState = new Array(6).fill(""), e.evaluations = new Array(6)
-                    .fill(null), e.solution = Da(e.today), e.dayOffset = Ga(e.today), e
-                    .lastCompletedTs = o.lastCompletedTs, e.hardMode = o.hardMode, e
-                    .restoringFromLocalStorage = !1, ja({
-                        rowIndex: e.rowIndex,
-                        boardState: e.boardState,
-                        evaluations: e.evaluations,
-                        solution: e.solution,
-                        gameStatus: e.gameStatus
-                    }), Ca("event", "level_start", {
-                        level_name: Wa(e.solution)
-                    })) : (e.boardState = o.boardState, e.evaluations = o.evaluations, e.rowIndex = o
-                    .rowIndex, e.solution = o.solution, e.dayOffset = Ga(e.today), e
-                    .letterEvaluations = Pa(e.boardState, e.evaluations), e.gameStatus = o.gameStatus,
-                    e.lastCompletedTs = o.lastCompletedTs, e.hardMode = o.hardMode, e.gameStatus !==
-                    Za && (e.canInput = !1), e.restoringFromLocalStorage = !0), e
+                return e.lastPlayedTs = o.lastPlayedTs, !e.lastPlayedTs  ?
+
+                    (e.boardState = new Array(6).fill(""), e.evaluations = new Array(6)
+                        .fill(null), e.solution = Da(e.today), e.dayOffset = Ga(e.today), e
+                            .lastCompletedTs = o.lastCompletedTs, e.hardMode = o.hardMode, e
+                                .restoringFromLocalStorage = !1, ja({
+                                    rowIndex: e.rowIndex,
+                                    boardState: e.boardState,
+                                    evaluations: e.evaluations,
+                                    solution: e.solution,
+                                    gameStatus: e.gameStatus
+                                }), Ca("event", "level_start", {
+                                    level_name: Wa(e.solution)
+                                }))
+
+                    : (e.boardState = o.boardState, e.evaluations = o.evaluations, e.rowIndex = o
+                        .rowIndex, e.solution = o.solution, e.dayOffset = Ga(e.today), e
+                            .letterEvaluations = Pa(e.boardState, e.evaluations), e.gameStatus = o.gameStatus,
+                        e.lastCompletedTs = o.lastCompletedTs, e.hardMode = o.hardMode, e.gameStatus !==
+                        Za && (e.canInput = !1), e.restoringFromLocalStorage = !0), e
             }
             return o(t, [{
                 key: "evaluateRow",
-                value: function() {
+                value: function () {
                     if (5 === this.tileIndex && !(this.rowIndex >= 6)) {
                         var e, a = this.$board.querySelectorAll("game-row")[this
                             .rowIndex],
@@ -2496,44 +2572,44 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                             .setAttribute("invalid", ""), void this.addToast(
                                 "Not in word list");
                         if (this.hardMode) {
-                            var t = function(e, a, s) {
-                                    if (!e || !a || !s) return {
-                                        validGuess: !0
-                                    };
-                                    for (var t = 0; t < s.length; t++)
-                                        if (s[t] === Ma && e[t] !== a[t]) return {
-                                            validGuess: !1,
-                                            errorMessage: "".concat($a(t + 1),
-                                                " letter must be ").concat(a[t]
+                            var t = function (e, a, s) {
+                                if (!e || !a || !s) return {
+                                    validGuess: !0
+                                };
+                                for (var t = 0; t < s.length; t++)
+                                    if (s[t] === Ma && e[t] !== a[t]) return {
+                                        validGuess: !1,
+                                        errorMessage: "".concat($a(t + 1),
+                                            " letter must be ").concat(a[t]
                                                 .toUpperCase())
-                                        };
-                                    for (var o = {}, n = 0; n < s.length; n++)[Ma, Ia]
-                                        .includes(s[n]) && (o[a[n]] ? o[a[n]] += 1 : o[a[
-                                            n]] = 1);
-                                    var r = e.split("").reduce((function(e, a) {
-                                        return e[a] ? e[a] += 1 : e[a] = 1, e
-                                    }), {});
-                                    for (var i in o)
-                                        if ((r[i] || 0) < o[i]) return {
-                                            validGuess: !1,
-                                            errorMessage: "Guess must contain "
-                                                .concat(i.toUpperCase())
-                                        };
-                                    return {
-                                        validGuess: !0
-                                    }
-                                }(s, this.boardState[this.rowIndex - 1], this.evaluations[
-                                    this.rowIndex - 1]),
+                                    };
+                                for (var o = {}, n = 0; n < s.length; n++) [Ma, Ia]
+                                    .includes(s[n]) && (o[a[n]] ? o[a[n]] += 1 : o[a[
+                                        n]] = 1);
+                                var r = e.split("").reduce((function (e, a) {
+                                    return e[a] ? e[a] += 1 : e[a] = 1, e
+                                }), {});
+                                for (var i in o)
+                                    if ((r[i] || 0) < o[i]) return {
+                                        validGuess: !1,
+                                        errorMessage: "Guess must contain "
+                                            .concat(i.toUpperCase())
+                                    };
+                                return {
+                                    validGuess: !0
+                                }
+                            }(s, this.boardState[this.rowIndex - 1], this.evaluations[
+                                this.rowIndex - 1]),
                                 o = t.validGuess,
                                 n = t.errorMessage;
                             if (!o) return a.setAttribute("invalid", ""), void this
                                 .addToast(n || "Not valid in hard mode")
                         }
-                        var r = function(e, a) {
+                        var r = function (e, a) {
                             for (var s = Array(a.length).fill(Oa), t = Array(a.length)
-                                    .fill(!0), o = Array(a.length).fill(!0), n =
+                                .fill(!0), o = Array(a.length).fill(!0), n =
                                     0; n < e.length; n++) e[n] === a[n] && o[n] && (s[
-                                n] = Ma, t[n] = !1, o[n] = !1);
+                                        n] = Ma, t[n] = !1, o[n] = !1);
                             for (var r = 0; r < e.length; r++) {
                                 var i = e[r];
                                 if (t[r])
@@ -2548,10 +2624,10 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                             return s
                         }(s, this.solution);
                         this.evaluations[this.rowIndex] = r, this.letterEvaluations = Pa(
-                                this.boardState, this.evaluations), a.evaluation = this
-                            .evaluations[this.rowIndex], this.rowIndex += 1;
+                            this.boardState, this.evaluations), a.evaluation = this
+                                .evaluations[this.rowIndex], this.rowIndex += 1;
                         var i = this.rowIndex >= 6,
-                            l = r.every((function(e) {
+                            l = r.every((function (e) {
                                 return "correct" === e
                             }));
                         if (i || l) Va({
@@ -2578,49 +2654,49 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 }
             }, {
                 key: "addLetter",
-                value: function(e) {
+                value: function (e) {
                     this.gameStatus === Za && (this.canInput && (this.tileIndex >= 5 || (
                         this.boardState[this.rowIndex] += e, this.$board
-                        .querySelectorAll("game-row")[this.rowIndex]
-                        .setAttribute("letters", this.boardState[this
-                            .rowIndex]), this.tileIndex += 1)))
+                            .querySelectorAll("game-row")[this.rowIndex]
+                            .setAttribute("letters", this.boardState[this
+                                .rowIndex]), this.tileIndex += 1)))
                 }
             }, {
                 key: "removeLetter",
-                value: function() {
+                value: function () {
                     if (this.gameStatus === Za && this.canInput && !(this.tileIndex <=
                         0)) {
                         this.boardState[this.rowIndex] = this.boardState[this.rowIndex]
                             .slice(0, this.boardState[this.rowIndex].length - 1);
                         var e = this.$board.querySelectorAll("game-row")[this.rowIndex];
                         this.boardState[this.rowIndex] ? e.setAttribute("letters", this
-                                .boardState[this.rowIndex]) : e.removeAttribute(
-                            "letters"), e.removeAttribute("invalid"), this.tileIndex -= 1
+                            .boardState[this.rowIndex]) : e.removeAttribute(
+                                "letters"), e.removeAttribute("invalid"), this.tileIndex -= 1
                     }
                 }
             }, {
                 key: "submitGuess",
-                value: function() {
+                value: function () {
                     if (this.gameStatus === Za && this.canInput) {
                         if (5 !== this.tileIndex) return this.$board.querySelectorAll(
-                                "game-row")[this.rowIndex].setAttribute("invalid",
-                            ""), void this.addToast("Not enough letters");
+                            "game-row")[this.rowIndex].setAttribute("invalid",
+                                ""), void this.addToast("Not enough letters");
                         this.evaluateRow()
                     }
                 }
             }, {
                 key: "addToast",
-                value: function(e, a) {
+                value: function (e, a) {
                     var s = arguments.length > 2 && void 0 !== arguments[2] && arguments[
-                            2],
+                        2],
                         t = document.createElement("game-toast");
                     t.setAttribute("text", e), a && t.setAttribute("duration", a), s ?
                         this.shadowRoot.querySelector("#system-toaster").prepend(t) : this
-                        .shadowRoot.querySelector("#game-toaster").prepend(t)
+                            .shadowRoot.querySelector("#game-toaster").prepend(t)
                 }
             }, {
                 key: "sizeBoard",
-                value: function() {
+                value: function () {
                     var e = this.shadowRoot.querySelector("#board-container"),
                         a = Math.min(Math.floor(e.clientHeight * (5 / 6)), 350),
                         s = 6 * Math.floor(a / 5);
@@ -2629,127 +2705,133 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 }
             }, {
                 key: "showStatsModal",
-                value: function() {
+                value: function () {
                     var e = this.$game.querySelector("game-modal"),
                         a = document.createElement("game-stats");
                     this.gameStatus === es && this.rowIndex <= 6 && a.setAttribute(
-                            "highlight-guess", this.rowIndex), a.gameApp = this, e
-                        .appendChild(a), e.setAttribute("open", "")
+                        "highlight-guess", this.rowIndex), a.gameApp = this, e
+                            .appendChild(a), e.setAttribute("open", "")
                 }
             }, {
                 key: "showHelpModal",
-                value: function() {
+                value: function () {
                     var e = this.$game.querySelector("game-modal");
-                    e.appendChild(document.createElement("game-help")), e.setAttribute(
-                        "open", "")
+                    // e.appendChild(document.createElement("game-help")), e.setAttribute(
+                    //     "open", "")
                 }
             }, {
                 key: "connectedCallback",
-                value: function() {
+                value: function () {
                     var e = this;
                     this.shadowRoot.appendChild(Ka.content.cloneNode(!0)), this.$game =
                         this.shadowRoot.querySelector("#game"), this.$board = this
-                        .shadowRoot.querySelector("#board"), this.$keyboard = this
-                        .shadowRoot.querySelector("game-keyboard"), this.sizeBoard(), this
-                        .lastPlayedTs || setTimeout((function() {
-                            return e.showHelpModal()
-                        }), 100);
+                            .shadowRoot.querySelector("#board"), this.$keyboard = this
+                                .shadowRoot.querySelector("game-keyboard"), this.sizeBoard(), this
+                                    .lastPlayedTs || setTimeout((function () {
+                                        return e.showHelpModal()
+                                    }), 100);
+
+                    this.shadowRoot.querySelector("#reset_button").addEventListener("click", () => {
+                        window.localStorage.removeItem(`gameState.${window.localStorage.getItem("current_date")}`);
+                        window.location.reload();
+                    });
+
                     for (var a = 0; a < 6; a++) {
                         var s = document.createElement("game-row");
                         s.setAttribute("letters", this.boardState[a]), s.setAttribute(
                             "length", 5), this.evaluations[a] && (s.evaluation = this
-                            .evaluations[a]), this.$board.appendChild(s)
+                                .evaluations[a]), this.$board.appendChild(s)
                     }
-                    this.$game.addEventListener("game-key-press", (function(a) {
-                            var s = a.detail.key;
-                            "←" === s || "Backspace" === s ? e.removeLetter() :
-                                "↵" === s || "Enter" === s ? e.submitGuess() : Ba
+                    this.$game.addEventListener("game-key-press", (function (a) {
+                        var s = a.detail.key;
+                        "←" === s || "Backspace" === s ? e.removeLetter() :
+                            "↵" === s || "Enter" === s ? e.submitGuess() : Ba
                                 .includes(s.toLowerCase()) && e.addLetter(s
                                     .toLowerCase())
-                        })), this.$game.addEventListener("game-last-tile-revealed-in-row",
-                            (function(a) {
-                                e.$keyboard.letterEvaluations = e.letterEvaluations, e
-                                    .rowIndex < 6 && (e.canInput = !0);
-                                var s = e.$board.querySelectorAll("game-row")[e
-                                    .rowIndex - 1];
-                                (a.path || a.composedPath && a.composedPath())
+                    })), this.$game.addEventListener("game-last-tile-revealed-in-row",
+                        (function (a) {
+                            e.$keyboard.letterEvaluations = e.letterEvaluations, e
+                                .rowIndex < 6 && (e.canInput = !0);
+                            var s = e.$board.querySelectorAll("game-row")[e
+                                .rowIndex - 1];
+                            (a.path || a.composedPath && a.composedPath())
                                 .includes(s) && ([es, as].includes(e.gameStatus) && (e
-                                        .restoringFromLocalStorage ? e
+                                    .restoringFromLocalStorage ? e
                                         .showStatsModal() : (e.gameStatus ===
                                             es && (s.setAttribute("win", ""), e
                                                 .addToast(ss[e.rowIndex - 1], 2e3)
-                                                ), e.gameStatus === as && e
-                                            .addToast(e.solution.toUpperCase(),
-                                                1 / 0), setTimeout((function() {
-                                                e.showStatsModal()
-                                            }), 2500))), e
-                                    .restoringFromLocalStorage = !1)
-                            })), this.shadowRoot.addEventListener("game-setting-change", (
-                            function(a) {
+                                            ), e.gameStatus === as && e
+                                                .addToast("Failed. Try again.",
+                                                    1 / 0), setTimeout((function () {
+                                                        e.showStatsModal()
+                                                    }), 2500))), e
+                                                        .restoringFromLocalStorage = !1)
+                        })), this.shadowRoot.addEventListener("game-setting-change", (
+                            function (a) {
                                 var s = a.detail,
                                     t = s.name,
                                     o = s.checked,
                                     n = s.disabled;
                                 switch (t) {
                                     case "hard-mode":
-                                        return void(n ? e.addToast(
+                                        return void (n ? e.addToast(
                                             "Hard mode can only be enabled at the start of a round",
                                             1500, !0) : (e.hardMode = o, ja({
-                                            hardMode: o
-                                        })))
+                                                hardMode: o
+                                            })))
                                 }
                             })), this.shadowRoot.getElementById("settings-button")
-                        .addEventListener("click", (function(a) {
-                            var s = e.$game.querySelector("game-page"),
-                                t = document.createTextNode("Settings");
-                            s.appendChild(t);
-                            var o = document.createElement("game-settings");
-                            o.setAttribute("slot", "content"), o.gameApp = e, s
-                                .appendChild(o), s.setAttribute("open", "")
-                        })), this.shadowRoot.getElementById("help-button")
-                        .addEventListener("click", (function(a) {
-                            var s = e.$game.querySelector("game-page"),
-                                t = document.createTextNode("How to play");
-                            s.appendChild(t);
-                            var o = document.createElement("game-help");
-                            o.setAttribute("page", ""), o.setAttribute("slot",
-                                "content"), s.appendChild(o), s.setAttribute(
-                                "open", "")
-                        })), this.shadowRoot.getElementById("statistics-button")
-                        .addEventListener("click", (function(a) {
-                            e.showStatsModal()
-                        })), window.addEventListener("resize", this.sizeBoard.bind(this))
+                                .addEventListener("click", (function (a) {
+                                    var s = e.$game.querySelector("game-page"),
+                                        t = document.createTextNode("Settings");
+                                    s.appendChild(t);
+                                    var o = document.createElement("game-settings");
+                                    o.setAttribute("slot", "content"), o.gameApp = e, s
+                                        .appendChild(o), s.setAttribute("open", "")
+                                })), this.shadowRoot.getElementById("help-button")
+                                    .addEventListener("click", (function (a) {
+                                        var s = e.$game.querySelector("game-page"),
+                                            t = document.createTextNode("How to play");
+                                        s.appendChild(t);
+                                        var o = document.createElement("game-help");
+                                        o.setAttribute("page", ""), o.setAttribute("slot",
+                                            "content"), s.appendChild(o), s.setAttribute(
+                                                "open", "")
+                                    })), this.shadowRoot.getElementById("statistics-button")
+                                        .addEventListener("click", (function (a) {
+                                            e.showStatsModal()
+                                        })), window.addEventListener("resize", this.sizeBoard.bind(this))
                 }
             }, {
                 key: "disconnectedCallback",
-                value: function() {}
+                value: function () { }
             }, {
                 key: "debugTools",
-                value: function() {
+                value: function () {
                     var e = this;
                     this.shadowRoot.getElementById("debug-tools").appendChild(Qa.content
-                            .cloneNode(!0)), this.shadowRoot.getElementById("toast")
-                        .addEventListener("click", (function(a) {
-                            e.addToast("hello world")
-                        })), this.shadowRoot.getElementById("modal").addEventListener(
-                            "click", (function(a) {
-                                var s = e.$game.querySelector("game-modal");
-                                s.textContent = "hello plz", s.setAttribute("open",
-                                    "")
-                            })), this.shadowRoot.getElementById("reveal")
-                        .addEventListener("click", (function() {
-                            e.evaluateRow()
-                        })), this.shadowRoot.getElementById("shake").addEventListener(
-                            "click", (function() {
-                                e.$board.querySelectorAll("game-row")[e.rowIndex]
-                                    .setAttribute("invalid", "")
-                            })), this.shadowRoot.getElementById("bounce")
-                        .addEventListener("click", (function() {
-                            var a = e.$board.querySelectorAll("game-row")[e
-                                .rowIndex - 1];
-                            "" === a.getAttribute("win") ? a.removeAttribute(
-                                "win") : a.setAttribute("win", "")
-                        }))
+                        .cloneNode(!0)), this.shadowRoot.getElementById("toast")
+                            .addEventListener("click", (function (a) {
+                                e.addToast("hello world")
+                            })), this.shadowRoot.getElementById("modal").addEventListener(
+                                "click", (function (a) {
+                                    var s = e.$game.querySelector("game-modal");
+                                    s.textContent = "hello plz", s.setAttribute("open",
+                                        "")
+                                })), this.shadowRoot.getElementById("reveal")
+                                    .addEventListener("click", (function () {
+                                        e.evaluateRow()
+                                    })), this.shadowRoot.getElementById("shake").addEventListener(
+                                        "click", (function () {
+                                            e.$board.querySelectorAll("game-row")[e.rowIndex]
+                                                .setAttribute("invalid", "")
+                                        })), this.shadowRoot.getElementById("bounce")
+                                            .addEventListener("click", (function () {
+                                                var a = e.$board.querySelectorAll("game-row")[e
+                                                    .rowIndex - 1];
+                                                "" === a.getAttribute("win") ? a.removeAttribute(
+                                                    "win") : a.setAttribute("win", "")
+                                            }))
                 }
             }]), t
         }(c(HTMLElement));
@@ -2757,10 +2839,10 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var os = document.createElement("template");
     os.innerHTML =
         "\n  <style>\n    .overlay {\n      display: none;\n      position: absolute;\n      width: 100%;\n      height: 100%;\n      top: 0;\n      left: 0;\n      justify-content: center;\n      align-items: center;\n      background-color: var(--opacity-50);\n      z-index: "
-        .concat(3e3,
-            ';\n    }\n\n    :host([open]) .overlay {\n      display: flex;\n    }\n\n    .content {\n      position: relative;\n      border-radius: 8px;\n      border: 1px solid var(--color-tone-6);\n      background-color: var(--modal-content-bg);\n      color: var(--color-tone-1);\n      box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);\n      width: 90%;\n      max-height: 90%;\n      overflow-y: auto;\n      animation: SlideIn 200ms;\n      max-width: var(--game-max-width);\n      padding: 16px;\n      box-sizing: border-box;\n    }\n\n    .content.closing {\n      animation: SlideOut 200ms;\n    }\n\n    .close-icon {\n      width: 24px;\n      height: 24px;\n      position: absolute;\n      top: 16px;\n      right: 16px;\n    }\n\n    game-icon {\n      position: fixed;\n      user-select: none;\n      cursor: pointer;\n    }\n\n    @keyframes SlideIn {\n      0% {\n        transform: translateY(30px);\n        opacity: 0;\n      }\n      100% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n    }\n    @keyframes SlideOut {\n      0% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n      90% {\n        opacity: 0;\n      }\n      100% {\n        opacity: 0;\n        transform: translateY(60px);\n      }\n    }\n  </style>\n  <div class="overlay">\n    <div class="content">\n      <slot></slot>\n      <div class="close-icon">\n        <game-icon icon="close"></game-icon>\n      </div>\n    </div>\n  </div>\n'
+            .concat(3e3,
+                ';\n    }\n\n    :host([open]) .overlay {\n      display: flex;\n    }\n\n    .content {\n      position: relative;\n      border-radius: 8px;\n      border: 1px solid var(--color-tone-6);\n      background-color: var(--modal-content-bg);\n      color: var(--color-tone-1);\n      box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);\n      width: 90%;\n      max-height: 90%;\n      overflow-y: auto;\n      animation: SlideIn 200ms;\n      max-width: var(--game-max-width);\n      padding: 16px;\n      box-sizing: border-box;\n    }\n\n    .content.closing {\n      animation: SlideOut 200ms;\n    }\n\n    .close-icon {\n      width: 24px;\n      height: 24px;\n      position: absolute;\n      top: 16px;\n      right: 16px;\n    }\n\n    game-icon {\n      position: fixed;\n      user-select: none;\n      cursor: pointer;\n    }\n\n    @keyframes SlideIn {\n      0% {\n        transform: translateY(30px);\n        opacity: 0;\n      }\n      100% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n    }\n    @keyframes SlideOut {\n      0% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n      90% {\n        opacity: 0;\n      }\n      100% {\n        opacity: 0;\n        transform: translateY(60px);\n      }\n    }\n  </style>\n  <div class="overlay">\n    <div class="content">\n      <slot></slot>\n      <div class="close-icon">\n        <game-icon icon="close"></game-icon>\n      </div>\n    </div>\n  </div>\n'
             );
-    var ns = function(e) {
+    var ns = function (e) {
         r(t, e);
         var a = h(t);
 
@@ -2772,18 +2854,18 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }
         return o(t, [{
             key: "connectedCallback",
-            value: function() {
+            value: function () {
                 var e = this;
                 this.shadowRoot.appendChild(os.content.cloneNode(!0)), this
-                    .addEventListener("click", (function(a) {
+                    .addEventListener("click", (function (a) {
                         e.shadowRoot.querySelector(".content").classList.add(
                             "closing")
-                    })), this.shadowRoot.addEventListener("animationend", (function(
-                    a) {
+                    })), this.shadowRoot.addEventListener("animationend", (function (
+                        a) {
                         "SlideOut" === a.animationName && (e.shadowRoot
                             .querySelector(".content").classList.remove(
                                 "closing"), e.removeChild(e.firstChild), e
-                            .removeAttribute("open"))
+                                    .removeAttribute("open"))
                     }))
             }
         }]), t
@@ -2797,11 +2879,11 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     var ls = document.createElement("template");
     ls.innerHTML = '\n  <div class="spacer"></div>\n';
     var ds = [
-            ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
-            ["-", "a", "s", "d", "f", "g", "h", "j", "k", "l", "-"],
-            ["↵", "z", "x", "c", "v", "b", "n", "m", "←"]
-        ],
-        us = function(e) {
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["-", "a", "s", "d", "f", "g", "h", "j", "k", "l", "-"],
+        ["↵", "z", "x", "c", "v", "b", "n", "m", "←"]
+    ],
+        us = function (e) {
             r(t, e);
             var a = h(t);
 
@@ -2813,12 +2895,12 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             }
             return o(t, [{
                 key: "letterEvaluations",
-                set: function(e) {
+                set: function (e) {
                     this._letterEvaluations = e, this._render()
                 }
             }, {
                 key: "dispatchKeyPressEvent",
-                value: function(e) {
+                value: function (e) {
                     this.dispatchEvent(new CustomEvent("game-key-press", {
                         bubbles: !0,
                         composed: !0,
@@ -2829,62 +2911,62 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                 }
             }, {
                 key: "connectedCallback",
-                value: function() {
+                value: function () {
                     var e = this;
                     this.shadowRoot.appendChild(rs.content.cloneNode(!0)), this
                         .$keyboard = this.shadowRoot.getElementById("keyboard"), this
-                        .$keyboard.addEventListener("click", (function(a) {
-                            var s = a.target.closest("button");
-                            s && e.$keyboard.contains(s) && e
-                                .dispatchKeyPressEvent(s.dataset.key)
-                        })), window.addEventListener("keydown", (function(a) {
-                            if (!0 !== a.repeat) {
-                                var s = a.key,
-                                    t = a.metaKey,
-                                    o = a.ctrlKey;
-                                t || o || (Ba.includes(s.toLowerCase()) ||
+                            .$keyboard.addEventListener("click", (function (a) {
+                                var s = a.target.closest("button");
+                                s && e.$keyboard.contains(s) && e
+                                    .dispatchKeyPressEvent(s.dataset.key)
+                            })), window.addEventListener("keydown", (function (a) {
+                                if (!0 !== a.repeat) {
+                                    var s = a.key,
+                                        t = a.metaKey,
+                                        o = a.ctrlKey;
+                                    t || o || (Ba.includes(s.toLowerCase()) ||
                                         "Backspace" === s || "Enter" === s) && e
-                                    .dispatchKeyPressEvent(s)
-                            }
-                        })), this.$keyboard.addEventListener("transitionend", (function(
-                        a) {
-                            var s = a.target.closest("button");
-                            s && e.$keyboard.contains(s) && s.classList.remove(
-                                "fade")
-                        })), ds.forEach((function(a) {
-                            var s = document.createElement("div");
-                            s.classList.add("row"), a.forEach((function(e) {
-                                var a;
-                                if (e >= "a" && e <= "z" || "←" ===
-                                    e || "↵" === e) {
-                                    if ((a = is.content.cloneNode(!0)
+                                            .dispatchKeyPressEvent(s)
+                                }
+                            })), this.$keyboard.addEventListener("transitionend", (function (
+                                a) {
+                                var s = a.target.closest("button");
+                                s && e.$keyboard.contains(s) && s.classList.remove(
+                                    "fade")
+                            })), ds.forEach((function (a) {
+                                var s = document.createElement("div");
+                                s.classList.add("row"), a.forEach((function (e) {
+                                    var a;
+                                    if (e >= "a" && e <= "z" || "←" ===
+                                        e || "↵" === e) {
+                                        if ((a = is.content.cloneNode(!0)
                                             .firstElementChild)
-                                        .dataset.key = e, a
-                                        .textContent = e, "←" === e) {
-                                        var t = document
-                                            .createElement(
-                                                "game-icon");
-                                        t.setAttribute("icon",
+                                            .dataset.key = e, a
+                                                .textContent = e, "←" === e) {
+                                            var t = document
+                                                .createElement(
+                                                    "game-icon");
+                                            t.setAttribute("icon",
                                                 "backspace"), a
-                                            .textContent = "", a
-                                            .appendChild(t), a
-                                            .classList.add(
-                                                "one-and-a-half")
-                                    }
-                                    "↵" == e && (a.textContent =
-                                        "enter", a.classList.add(
-                                            "one-and-a-half"))
-                                } else(a = ls.content.cloneNode(!0)
+                                                    .textContent = "", a
+                                                        .appendChild(t), a
+                                                            .classList.add(
+                                                                "one-and-a-half")
+                                        }
+                                        "↵" == e && (a.textContent =
+                                            "enter", a.classList.add(
+                                                "one-and-a-half"))
+                                    } else (a = ls.content.cloneNode(!0)
                                         .firstElementChild).classList
-                                    .add(1 === e.length ? "half" :
-                                        "one");
-                                s.appendChild(a)
-                            })), e.$keyboard.appendChild(s)
-                        })), this._render()
+                                        .add(1 === e.length ? "half" :
+                                            "one");
+                                    s.appendChild(a)
+                                })), e.$keyboard.appendChild(s)
+                            })), this._render()
                 }
             }, {
                 key: "_render",
-                value: function() {
+                value: function () {
                     for (var e in this._letterEvaluations) {
                         var a = this.$keyboard.querySelector('[data-key="'.concat(e,
                             '"]'));
@@ -2909,7 +2991,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
       PERFORMANCE OF THIS SOFTWARE.
       ***************************************************************************** */
     function cs(e, a, s, t) {
-        return new(s || (s = Promise))((function(o, n) {
+        return new (s || (s = Promise))((function (o, n) {
             function r(e) {
                 try {
                     l(t.next(e))
@@ -2928,7 +3010,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
 
             function l(e) {
                 var a;
-                e.done ? o(e.value) : (a = e.value, a instanceof s ? a : new s((function(e) {
+                e.done ? o(e.value) : (a = e.value, a instanceof s ? a : new s((function (e) {
                     e(a)
                 }))).then(r, i)
             }
@@ -2939,7 +3021,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     function ps(e, a) {
         var s, t, o, n, r = {
             label: 0,
-            sent: function() {
+            sent: function () {
                 if (1 & o[0]) throw o[1];
                 return o[1]
             },
@@ -2950,18 +3032,18 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
             next: i(0),
             throw: i(1),
             return: i(2)
-        }, "function" == typeof Symbol && (n[Symbol.iterator] = function() {
+        }, "function" == typeof Symbol && (n[Symbol.iterator] = function () {
             return this
         }), n;
 
         function i(n) {
-            return function(i) {
-                return function(n) {
+            return function (i) {
+                return function (n) {
                     if (s) throw new TypeError("Generator is already executing.");
                     for (; r;) try {
                         if (s = 1, t && (o = 2 & n[0] ? t.return : n[0] ? t.throw || ((o = t
-                                .return) && o.call(t), 0) : t.next) && !(o = o.call(t, n[1]))
-                            .done) return o;
+                            .return) && o.call(t), 0) : t.next) && !(o = o.call(t, n[1]))
+                                .done) return o;
                         switch (t = 0, o && (n = [2 & n[0], o.value]), n[0]) {
                             case 0:
                             case 1:
@@ -2980,7 +3062,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                                 continue;
                             default:
                                 if (!((o = (o = r.trys).length > 0 && o[o.length - 1]) ||
-                                        6 !== n[0] && 2 !== n[0])) {
+                                    6 !== n[0] && 2 !== n[0])) {
                                     r = 0;
                                     continue
                                 }
@@ -3003,8 +3085,8 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
                     } catch (e) {
                         n = [6, e], t = 0
                     } finally {
-                        s = o = 0
-                    }
+                            s = o = 0
+                        }
                     if (5 & n[0]) throw n[1];
                     return {
                         value: n[0] ? n[1] : void 0,
@@ -3015,7 +3097,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         }
     }
     customElements.define("game-keyboard", us),
-        function() {
+        function () {
             (console.warn || console.log).apply(console, arguments)
         }.bind("[clipboard-polyfill]");
     var ms, hs, ys, gs, bs = "undefined" == typeof navigator ? void 0 : navigator,
@@ -3023,10 +3105,10 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     null === (ms = null == fs ? void 0 : fs.read) || void 0 === ms || ms.bind(fs), null === (hs = null ==
         fs ? void 0 : fs.readText) || void 0 === hs || hs.bind(fs);
     var ks = (null === (ys = null == fs ? void 0 : fs.write) || void 0 === ys || ys.bind(fs), null === (
-            gs = null == fs ? void 0 : fs.writeText) || void 0 === gs ? void 0 : gs.bind(fs)),
+        gs = null == fs ? void 0 : fs.writeText) || void 0 === gs ? void 0 : gs.bind(fs)),
         vs = "undefined" == typeof window ? void 0 : window,
         ws = (null == vs || vs.ClipboardItem, vs);
-    var xs = function() {
+    var xs = function () {
         this.success = !1
     };
 
@@ -3071,44 +3153,44 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
     }
 
     function Es(e) {
-        return cs(this, void 0, void 0, (function() {
+        return cs(this, void 0, void 0, (function () {
             var a;
-            return ps(this, (function(s) {
+            return ps(this, (function (s) {
                 if (a = "text/plain" in e, "undefined" == typeof ClipboardEvent &&
                     void 0 !== ws.clipboardData && void 0 !== ws.clipboardData
-                    .setData) {
+                        .setData) {
                     if (!a) throw new Error(
                         "No `text/plain` value was specified.");
                     if (t = e["text/plain"], ws.clipboardData.setData("Text", t))
                         return [2, !0];
                     throw new Error(
                         "Copying failed, possibly because the user rejected it."
-                        )
+                    )
                 }
                 var t;
                 return js(e) || navigator.userAgent.indexOf("Edge") > -1 || Ss(
-                    document.body, e) || function(e) {
-                    var a = document.createElement("div");
-                    a.setAttribute("style",
+                    document.body, e) || function (e) {
+                        var a = document.createElement("div");
+                        a.setAttribute("style",
                             "-webkit-user-select: text !important"), a
-                        .textContent = "temporary element", document.body
-                        .appendChild(a);
-                    var s = Ss(a, e);
-                    return document.body.removeChild(a), s
-                }(e) || function(e) {
-                    var a = document.createElement("div");
-                    a.setAttribute("style",
-                        "-webkit-user-select: text !important");
-                    var s = a;
-                    a.attachShadow && (s = a.attachShadow({
-                        mode: "open"
-                    }));
-                    var t = document.createElement("span");
-                    t.innerText = e, s.appendChild(t), document.body
-                        .appendChild(a), _s(t);
-                    var o = document.execCommand("copy");
-                    return qs(), document.body.removeChild(a), o
-                }(e["text/plain"]) ? [2, !0] : [2, !1]
+                                .textContent = "temporary element", document.body
+                                    .appendChild(a);
+                        var s = Ss(a, e);
+                        return document.body.removeChild(a), s
+                    }(e) || function (e) {
+                        var a = document.createElement("div");
+                        a.setAttribute("style",
+                            "-webkit-user-select: text !important");
+                        var s = a;
+                        a.attachShadow && (s = a.attachShadow({
+                            mode: "open"
+                        }));
+                        var t = document.createElement("span");
+                        t.innerText = e, s.appendChild(t), document.body
+                            .appendChild(a), _s(t);
+                        var o = document.execCommand("copy");
+                        return qs(), document.body.removeChild(a), o
+                    }(e["text/plain"]) ? [2, !0] : [2, !1]
             }))
         }))
     }
@@ -3117,39 +3199,39 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function(e) {
         try {
             t = navigator.userAgent || navigator.vendor || window.opera, !
                 /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i
-                .test(t) && !
+                    .test(t) && !
                 /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i
-                .test(t.substr(0, 4)) || navigator.userAgent.toLowerCase().indexOf("firefox") > -1 ||
-                void 0 === navigator.share || !navigator.canShare || !navigator.canShare(e)?function(e){
-            return cs(this, void 0, void 0, (function() {
-                return ps(this, (function(a) {
-                    if (ks) return [2, ks(e)];
-                    if (!Es(function(e) {
-                            var a = {};
-                            return a["text/plain"] = e, a
-                        }(e))) throw new Error("writeText() failed");
-                    return [2]
-                }))
-            }))
-        }(e.text).then(a, s): navigator.share(e)
-    } catch (e) {
-        s()
+                    .test(t.substr(0, 4)) || navigator.userAgent.toLowerCase().indexOf("firefox") > -1 ||
+                void 0 === navigator.share || !navigator.canShare || !navigator.canShare(e) ? function (e) {
+                    return cs(this, void 0, void 0, (function () {
+                        return ps(this, (function (a) {
+                            if (ks) return [2, ks(e)];
+                            if (!Es(function (e) {
+                                var a = {};
+                                return a["text/plain"] = e, a
+                            }(e))) throw new Error("writeText() failed");
+                            return [2]
+                        }))
+                    }))
+                }(e.text).then(a, s) : navigator.share(e)
+        } catch (e) {
+            s()
+        }
+        var t
     }
-    var t
-}
-var Cs = document.createElement("template");
-Cs.innerHTML =
-    '\n  <style>\n    .container {\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      justify-content: center;\n      padding: 16px 0; \n    }\n    h1 {\n      font-weight: 700;\n      font-size: 16px;\n      letter-spacing: 0.5px;\n      text-transform: uppercase;\n      text-align: center;\n      margin-bottom: 10px;\n    }\n  \n    #statistics {\n      display: flex;\n      margin-bottom: \n    }\n\n    .statistic-container {\n      flex: 1;\n    }\n\n    .statistic-container .statistic {\n      font-size: 36px;\n      font-weight: 400;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      text-align: center;\n      letter-spacing: 0.05em;\n      font-variant-numeric: proportional-nums;\n    }\n\n    .statistic.timer {\n      font-variant-numeric: initial;\n    }\n\n    .statistic-container .label {\n      font-size: 12px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      text-align: center;\n    }\n\n    #guess-distribution {\n      width: 80%;\n    }\n\n    .graph-container {\n      width: 100%;\n      height: 20px;\n      display: flex;\n      align-items: center;\n      padding-bottom: 4px;\n      font-size: 14px;\n      line-height: 20px;\n    }\n\n    .graph-container .graph {\n      width: 100%;\n      height: 100%;\n      padding-left: 4px;\n    }\n\n    .graph-container .graph .graph-bar {\n      height: 100%;\n      /* Assume no wins */\n      width: 0%;\n      position: relative;\n      background-color: var(--color-absent);\n      display: flex;\n      justify-content: center;\n    }\n\n    .graph-container .graph .graph-bar.highlight {\n      background-color: var(--color-correct);\n    }\n\n    .graph-container .graph .graph-bar.align-right {\n      justify-content: flex-end;\n      padding-right: 8px;\n    }\n\n    .graph-container .graph .num-guesses {\n      font-weight: bold;\n      color: var(--tile-text-color);\n    }\n\n    #statistics,\n    #guess-distribution {\n      padding-bottom: 10px;\n    }\n\n    .footer {\n      display: flex;\n      width: 100%;\n    }\n\n    .countdown {\n      border-right: 1px solid var(--color-tone-1);\n      padding-right: 12px;\n      width: 50%;\n    }\n\n    .share {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 12px;\n      width: 50%;\n    }\n\n    .no-data {\n      text-align: center;\n    }\n\n    button#share-button {\n      background-color: var(--key-bg-correct);\n      color: var(--key-evaluated-text-color);\n      font-family: inherit;\n      font-weight: bold;\n      border-radius: 4px;\n      cursor: pointer;\n      border: none;\n      user-select: none;\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      text-transform: uppercase;\n      -webkit-tap-highlight-color: rgba(0,0,0,0.3);\n      width: 80%;\n      font-size: 20px;\n      height: 52px;\n      -webkit-filter: brightness(100%);\n    }\n    button#share-button:hover {\n      opacity: 0.9;\n    }\n    button#share-button game-icon {\n      width: 24px;\n      height: 24px;\n      padding-left: 8px;\n    }\n  </style>\n\n  <div class="container">\n    <h1>Statistics</h1>\n    <div id="statistics"></div>\n    <h1>Guess Distribution</h1>\n    <div id="guess-distribution"></div>\n    <div class="footer"></div>\n  </div>\n';
-var Ls = document.createElement("template");
-Ls.innerHTML =
-    '\n  <div class="statistic-container">\n    <div class="statistic"></div>\n    <div class="label"></div>\n  </div>\n';
-var Ts = document.createElement("template");
-Ts.innerHTML =
-    '\n    <div class="graph-container">\n      <div class="guess"></div>\n      <div class="graph">\n        <div class="graph-bar">\n          <div class="num-guesses">\n        </div>\n      </div>\n      </div>\n    </div>\n';
-var Is = document.createElement("template");
-Is.innerHTML =
-    '\n  <div class="countdown">\n    <h1>Next WORDLE</h1>\n    <div id="timer">\n      <div class="statistic-container">\n        <div class="statistic timer">\n          <countdown-timer></countdown-timer>\n        </div>\n      </div>\n    </div>\n  </div>\n  <div class="share">\n    <button id="share-button">\n      Share <game-icon icon="share"></game-icon>\n    </button>\n  </div>\n';
-var Ms = {
+    var Cs = document.createElement("template");
+    Cs.innerHTML =
+        '\n  <style>\n    .container {\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      justify-content: center;\n      padding: 16px 0; \n    }\n    h1 {\n      font-weight: 700;\n      font-size: 16px;\n      letter-spacing: 0.5px;\n      text-transform: uppercase;\n      text-align: center;\n      margin-bottom: 10px;\n    }\n  \n    #statistics {\n      display: flex;\n      margin-bottom: \n    }\n\n    .statistic-container {\n      flex: 1;\n    }\n\n    .statistic-container .statistic {\n      font-size: 36px;\n      font-weight: 400;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      text-align: center;\n      letter-spacing: 0.05em;\n      font-variant-numeric: proportional-nums;\n    }\n\n    .statistic.timer {\n      font-variant-numeric: initial;\n    }\n\n    .statistic-container .label {\n      font-size: 12px;\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      text-align: center;\n    }\n\n    #guess-distribution {\n      width: 80%;\n    }\n\n    .graph-container {\n      width: 100%;\n      height: 20px;\n      display: flex;\n      align-items: center;\n      padding-bottom: 4px;\n      font-size: 14px;\n      line-height: 20px;\n    }\n\n    .graph-container .graph {\n      width: 100%;\n      height: 100%;\n      padding-left: 4px;\n    }\n\n    .graph-container .graph .graph-bar {\n      height: 100%;\n      /* Assume no wins */\n      width: 0%;\n      position: relative;\n      background-color: var(--color-absent);\n      display: flex;\n      justify-content: center;\n    }\n\n    .graph-container .graph .graph-bar.highlight {\n      background-color: var(--color-correct);\n    }\n\n    .graph-container .graph .graph-bar.align-right {\n      justify-content: flex-end;\n      padding-right: 8px;\n    }\n\n    .graph-container .graph .num-guesses {\n      font-weight: bold;\n      color: var(--tile-text-color);\n    }\n\n    #statistics,\n    #guess-distribution {\n      padding-bottom: 10px;\n    }\n\n    .footer {\n      display: flex;\n      width: 100%;\n    }\n\n    .countdown {\n      border-right: 1px solid var(--color-tone-1);\n      padding-right: 12px;\n      width: 50%;\n    }\n\n    .share {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      padding-left: 12px;\n      width: 50%;\n    }\n\n    .no-data {\n      text-align: center;\n    }\n\n    button#share-button {\n      background-color: var(--key-bg-correct);\n      color: var(--key-evaluated-text-color);\n      font-family: inherit;\n      font-weight: bold;\n      border-radius: 4px;\n      cursor: pointer;\n      border: none;\n      user-select: none;\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      text-transform: uppercase;\n      -webkit-tap-highlight-color: rgba(0,0,0,0.3);\n      width: 80%;\n      font-size: 20px;\n      height: 52px;\n      -webkit-filter: brightness(100%);\n    }\n    button#share-button:hover {\n      opacity: 0.9;\n    }\n    button#share-button game-icon {\n      width: 24px;\n      height: 24px;\n      padding-left: 8px;\n    }\n  </style>\n\n  <div class="container">\n    <h1>Statistics</h1>\n    <div id="statistics"></div>\n    <h1>Guess Distribution</h1>\n    <div id="guess-distribution"></div>\n    <div class="footer"></div>\n  </div>\n';
+    var Ls = document.createElement("template");
+    Ls.innerHTML =
+        '\n  <div class="statistic-container">\n    <div class="statistic"></div>\n    <div class="label"></div>\n  </div>\n';
+    var Ts = document.createElement("template");
+    Ts.innerHTML =
+        '\n    <div class="graph-container">\n      <div class="guess"></div>\n      <div class="graph">\n        <div class="graph-bar">\n          <div class="num-guesses">\n        </div>\n      </div>\n      </div>\n    </div>\n';
+    var Is = document.createElement("template");
+    Is.innerHTML =
+        '\n  <div class="countdown">\n    <h1>Next WORDLE</h1>\n    <div id="timer">\n      <div class="statistic-container">\n        <div class="statistic timer">\n          <countdown-timer></countdown-timer>\n        </div>\n      </div>\n    </div>\n  </div>\n  <div class="share">\n    <button id="share-button">\n      Share <game-icon icon="share"></game-icon>\n    </button>\n  </div>\n';
+    var Ms = {
         currentStreak: "Current Streak",
         maxStreak: "Max Streak",
         winPercentage: "Win %",
@@ -3157,250 +3239,145 @@ var Ms = {
         gamesWon: "Won",
         averageGuesses: "Av. Guesses"
     },
-    Os = function(e) {
-        r(t, e);
-        var a = h(t);
+        Os = function (e) {
+            r(t, e);
+            var a = h(t);
 
-        function t() {
-            var e;
-            return s(this, t), n(p(e = a.call(this)), "stats", {}), n(p(e), "gameApp", void 0), e
-                .attachShadow({
-                    mode: "open"
-                }), e.stats = Xa(), e
-        }
-        return o(t, [{
-            key: "connectedCallback",
-            value: function() {
-                var e = this;
-                this.shadowRoot.appendChild(Cs.content.cloneNode(!0));
-                var a = this.shadowRoot.getElementById("statistics"),
-                    s = this.shadowRoot.getElementById("guess-distribution"),
-                    t = Math.max.apply(Math, g(Object.values(this.stats.guesses)));
-                if (Object.values(this.stats.guesses).every((function(e) {
+            function t() {
+                var e;
+                return s(this, t), n(p(e = a.call(this)), "stats", {}), n(p(e), "gameApp", void 0), e
+                    .attachShadow({
+                        mode: "open"
+                    }), e.stats = Xa(), e
+            }
+            return o(t, [{
+                key: "connectedCallback",
+                value: function () {
+                    var e = this;
+                    this.shadowRoot.appendChild(Cs.content.cloneNode(!0));
+                    var a = this.shadowRoot.getElementById("statistics"),
+                        s = this.shadowRoot.getElementById("guess-distribution"),
+                        t = Math.max.apply(Math, g(Object.values(this.stats.guesses)));
+                    if (Object.values(this.stats.guesses).every((function (e) {
                         return 0 === e
                     }))) {
-                    var o = document.createElement("div");
-                    o.classList.add("no-data"), o.innerText = "No Data", s.appendChild(o)
-                } else
-                    for (var n = 1; n < Object.keys(this.stats.guesses).length; n++) {
-                        var r = n,
-                            i = this.stats.guesses[n],
-                            l = Ts.content.cloneNode(!0),
-                            d = Math.max(7, Math.round(i / t * 100));
-                        l.querySelector(".guess").textContent = r;
-                        var u = l.querySelector(".graph-bar");
-                        if (u.style.width = "".concat(d, "%"), "number" == typeof i) {
-                            l.querySelector(".num-guesses").textContent = i, i > 0 && u
-                                .classList.add("align-right");
-                            var c = parseInt(this.getAttribute("highlight-guess"), 10);
-                            c && n === c && u.classList.add("highlight")
+                        var o = document.createElement("div");
+                        o.classList.add("no-data"), o.innerText = "No Data", s.appendChild(o)
+                    } else
+                        for (var n = 1; n < Object.keys(this.stats.guesses).length; n++) {
+                            var r = n,
+                                i = this.stats.guesses[n],
+                                l = Ts.content.cloneNode(!0),
+                                d = Math.max(7, Math.round(i / t * 100));
+                            l.querySelector(".guess").textContent = r;
+                            var u = l.querySelector(".graph-bar");
+                            if (u.style.width = "".concat(d, "%"), "number" == typeof i) {
+                                l.querySelector(".num-guesses").textContent = i, i > 0 && u
+                                    .classList.add("align-right");
+                                var c = parseInt(this.getAttribute("highlight-guess"), 10);
+                                c && n === c && u.classList.add("highlight")
+                            }
+                            s.appendChild(l)
                         }
-                        s.appendChild(l)
-                    }
-                if (["gamesPlayed", "winPercentage", "currentStreak", "maxStreak"].forEach((
-                        function(s) {
+                    if (["gamesPlayed", "winPercentage", "currentStreak", "maxStreak"].forEach((
+                        function (s) {
                             var t = Ms[s],
                                 o = e.stats[s],
                                 n = Ls.content.cloneNode(!0);
                             n.querySelector(".label").textContent = t, n.querySelector(
                                 ".statistic").textContent = o, a.appendChild(n)
                         })), this.gameApp.gameStatus !== Za) {
-                    var p = this.shadowRoot.querySelector(".footer"),
-                        m = Is.content.cloneNode(!0);
-                    p.appendChild(m), this.shadowRoot.querySelector("button#share-button")
-                        .addEventListener("click", (function(a) {
-                            a.preventDefault(), a.stopPropagation();
-                            As(function(e) {
-                                var a = e.evaluations,
-                                    s = e.dayOffset,
-                                    t = e.rowIndex,
-                                    o = e.isHardMode,
-                                    n = e.isWin,
-                                    r = JSON.parse(window.localStorage
-                                        .getItem(j)),
-                                    i = JSON.parse(window.localStorage
-                                        .getItem(S)),
-                                    l = "Wordle ".concat(s);
-                                l += " ".concat(n ? t : "X", "/").concat(6),
-                                    o && (l += "*");
-                                var d = "";
-                                return a.forEach((function(e) {
-                                    e && (e.forEach((function(e) {
-                                        if (e) {
-                                            var a =
-                                                "";
-                                            switch (
+                        var p = this.shadowRoot.querySelector(".footer"),
+                            m = Is.content.cloneNode(!0);
+                        p.appendChild(m), this.shadowRoot.querySelector("button#share-button")
+                            .addEventListener("click", (function (a) {
+                                a.preventDefault(), a.stopPropagation();
+                                As(function (e) {
+                                    var a = e.evaluations,
+                                        s = e.dayOffset,
+                                        t = e.rowIndex,
+                                        o = e.isHardMode,
+                                        n = e.isWin,
+                                        r = JSON.parse(window.localStorage
+                                            .getItem(j)),
+                                        i = JSON.parse(window.localStorage
+                                            .getItem(S)),
+                                        l = "Wordle ".concat(s);
+                                    l += " ".concat(n ? t : "X", "/").concat(6),
+                                        o && (l += "*");
+                                    var d = "";
+                                    return a.forEach((function (e) {
+                                        e && (e.forEach((function (e) {
+                                            if (e) {
+                                                var a =
+                                                    "";
+                                                switch (
                                                 e
                                                 ) {
-                                                case Ma:
-                                                    a = function(
+                                                    case Ma:
+                                                        a = function (
                                                             e
-                                                            ) {
+                                                        ) {
                                                             return e ?
                                                                 "🟧" :
                                                                 "🟩"
                                                         }
-                                                        (
-                                                            i);
-                                                    break;
-                                                case Ia:
-                                                    a = function(
+                                                            (
+                                                                i);
+                                                        break;
+                                                    case Ia:
+                                                        a = function (
                                                             e
-                                                            ) {
+                                                        ) {
                                                             return e ?
                                                                 "🟦" :
                                                                 "🟨"
                                                         }
-                                                        (
-                                                            i);
-                                                    break;
-                                                case Oa:
-                                                    a = function(
+                                                            (
+                                                                i);
+                                                        break;
+                                                    case Oa:
+                                                        a = function (
                                                             e
-                                                            ) {
+                                                        ) {
                                                             return e ?
                                                                 "⬛" :
                                                                 "⬜"
                                                         }
-                                                        (
-                                                            r)
+                                                            (
+                                                                r)
+                                                }
+                                                d += a
                                             }
-                                            d += a
-                                        }
-                                    })), d += "\n")
-                                })), {
-                                    text: "".concat(l, "\n\n").concat(d
-                                        .trimEnd())
-                                }
-                            }({
-                                evaluations: e.gameApp.evaluations,
-                                dayOffset: e.gameApp.dayOffset,
-                                rowIndex: e.gameApp.rowIndex,
-                                isHardMode: e.gameApp.hardMode,
-                                isWin: e.gameApp.gameStatus === es
-                            }), (function() {
-                                e.gameApp.addToast(
-                                    "Copied results to clipboard",
-                                    2e3, !0)
-                            }), (function() {
-                                e.gameApp.addToast("Share failed", 2e3, !
-                                    0)
+                                        })), d += "\n")
+                                    })), {
+                                        text: "".concat(l, "\n\n").concat(d
+                                            .trimEnd())
+                                    }
+                                }({
+                                    evaluations: e.gameApp.evaluations,
+                                    dayOffset: e.gameApp.dayOffset,
+                                    rowIndex: e.gameApp.rowIndex,
+                                    isHardMode: e.gameApp.hardMode,
+                                    isWin: e.gameApp.gameStatus === es
+                                }), (function () {
+                                    e.gameApp.addToast(
+                                        "Copied results to clipboard",
+                                        2e3, !0)
+                                }), (function () {
+                                    e.gameApp.addToast("Share failed", 2e3, !
+                                        0)
+                                }))
                             }))
-                        }))
+                    }
                 }
-            }
-        }]), t
-    }(c(HTMLElement));
-customElements.define("game-stats", Os);
-var Rs = document.createElement("template");
-Rs.innerHTML =
-    '\n  <style>\n    :host {\n    }\n    .container {\n      display: flex;\n      justify-content: space-between;\n    }\n    .switch {\n      height: 20px;\n      width: 32px;\n      vertical-align: middle;\n      /* not quite right */\n      background: var(--color-tone-3);\n      border-radius: 999px;\n      display: block;\n      position: relative;\n    }\n    .knob {\n      display: block;\n      position: absolute;\n      left: 2px;\n      top: 2px;\n      height: calc(100% - 4px);\n      width: 50%;\n      border-radius: 8px;\n      background: var(--white);\n      transform: translateX(0);\n      transition: transform 0.3s;\n    }\n    :host([checked]) .switch {\n      background: var(--color-correct);\n    }\n    :host([checked]) .knob {\n      transform: translateX(calc(100% - 4px));\n    }\n    :host([disabled]) .switch {\n      opacity: 0.5;\n    }\n  </style>\n  <div class="container">\n    <label><slot></slot></label>\n    <div class="switch">\n      <span class="knob"></div>\n    </div>\n  </div>\n';
-var Ps = function(e) {
-    r(t, e);
-    var a = h(t);
-
-    function t() {
-        var e;
-        return s(this, t), (e = a.call(this)).attachShadow({
-            mode: "open"
-        }), e
-    }
-    return o(t, [{
-        key: "connectedCallback",
-        value: function() {
-            var e = this;
-            this.shadowRoot.appendChild(Rs.content.cloneNode(!0)), this.shadowRoot
-                .querySelector(".container").addEventListener("click", (function(a) {
-                    a.stopPropagation(), e.hasAttribute("checked") ? e
-                        .removeAttribute("checked") : e.setAttribute("checked",
-                            ""), e.dispatchEvent(new CustomEvent(
-                            "game-switch-change", {
-                                bubbles: !0,
-                                composed: !0,
-                                detail: {
-                                    name: e.getAttribute("name"),
-                                    checked: e.hasAttribute("checked"),
-                                    disabled: e.hasAttribute("disabled")
-                                }
-                            }))
-                }))
-        }
-    }], [{
-        key: "observedAttributes",
-        get: function() {
-            return ["checked"]
-        }
-    }]), t
-}(c(HTMLElement));
-customElements.define("game-switch", Ps);
-var $s = document.createElement("template");
-$s.innerHTML =
-    '\n  <style>\n  .instructions {\n    font-size: 14px;\n    color: var(--color-tone-1)\n  }\n\n  .examples {\n    border-bottom: 1px solid var(--color-tone-4);\n    border-top: 1px solid var(--color-tone-4);\n  }\n\n  .example {\n    margin-top: 24px;\n    margin-bottom: 24px;\n  }\n\n  game-tile {\n    width: 40px;\n    height: 40px;\n  }\n\n  :host([page]) section {\n    padding: 16px;\n    padding-top: 0px;\n  }\n\n  </style>\n  <section>\n    <div class="instructions">\n      <p>Guess the <strong>WORDLE</strong> in 6 tries.</p>\n      <p>Each guess must be a valid 5 letter word. Hit the enter button to submit.</p>\n      <p>After each guess, the color of the tiles will change to show how close your guess was to the word.</p>\n      <div class="examples">\n        <p><strong>Examples</strong></p>\n        <div class="example">\n          <div class="row">\n            <game-tile letter="w" evaluation="correct" reveal></game-tile>\n            <game-tile letter="e"></game-tile>\n            <game-tile letter="a"></game-tile>\n            <game-tile letter="r"></game-tile>\n            <game-tile letter="y"></game-tile>\n          </div>\n          <p>The letter <strong>W</strong> is in the word and in the correct spot.</p>\n        </div>\n        <div class="example">\n          <div class="row">\n            <game-tile letter="p"></game-tile>\n            <game-tile letter="i" evaluation="present" reveal></game-tile>\n            <game-tile letter="l"></game-tile>\n            <game-tile letter="l"></game-tile>\n            <game-tile letter="s"></game-tile>\n          </div>\n          <p>The letter <strong>I</strong> is in the word but in the wrong spot.</p>\n        </div>\n        <div class="example">\n          <div class="row">\n            <game-tile letter="v"></game-tile>\n            <game-tile letter="a"></game-tile>\n            <game-tile letter="g"></game-tile>\n            <game-tile letter="u" evaluation="absent" reveal></game-tile>\n            <game-tile letter="e"></game-tile>\n          </div>\n          <p>The letter <strong>U</strong> is not in the word in any spot.</p>\n        </div>\n      </div>\n      <p><strong>A new WORDLE will be available each day!<strong></p>\n    </div>\n  </section>\n';
-var Hs = function(e) {
-    r(t, e);
-    var a = h(t);
-
-    function t() {
-        var e;
-        return s(this, t), (e = a.call(this)).attachShadow({
-            mode: "open"
-        }), e
-    }
-    return o(t, [{
-        key: "connectedCallback",
-        value: function() {
-            this.shadowRoot.appendChild($s.content.cloneNode(!0))
-        }
-    }]), t
-}(c(HTMLElement));
-customElements.define("game-help", Hs);
-var Ns = document.createElement("template");
-Ns.innerHTML =
-    "\n  <style>\n    .overlay {\n      display: none;\n      position: absolute;\n      width: 100%;\n      height: 100%;\n      top: 0;\n      left: 0;\n      justify-content: center;\n      background-color: var(--color-background);\n      animation: SlideIn 100ms linear;\n      z-index: "
-    .concat(2e3,
-        ';\n    }\n\n    :host([open]) .overlay {\n      display: flex;\n    }\n\n    .content {\n      position: relative;\n      color: var(--color-tone-1);\n      padding: 0 32px;\n      max-width: var(--game-max-width);\n      width: 100%;\n      overflow-y: auto;\n      height: 100%;\n      display: flex;\n      flex-direction: column;\n    }\n\n    .content-container {\n      height: 100%;\n    }\n\n    .overlay.closing {\n      animation: SlideOut 150ms linear;\n    }\n\n    header {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n    }\n\n    h1 {\n      font-weight: 700;\n      font-size: 16px;\n      letter-spacing: 0.5px;\n      text-transform: uppercase;\n      text-align: center;\n      margin-bottom: 10px;\n    }\n\n    game-icon {\n      position: absolute;\n      right: 0;\n      user-select: none;\n      cursor: pointer;\n    }\n\n    @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {\n      .content {\n        max-width: 100%;\n        padding: 0;\n      }\n      game-icon {\n        padding: 0 16px;\n      }\n    }\n\n    @keyframes SlideIn {\n      0% {\n        transform: translateY(30px);\n        opacity: 0;\n      }\n      100% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n    }\n    @keyframes SlideOut {\n      0% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n      90% {\n        opacity: 0;\n      }\n      100% {\n        opacity: 0;\n        transform: translateY(60px);\n      }\n    }\n  </style>\n  <div class="overlay">\n    <div class="content">\n      <header>\n        <h1><slot></slot></h1>\n        <game-icon icon="close"></game-icon>\n      </header>\n      <div class="content-container">\n        <slot name="content"></slot>\n      </div>\n    </div>\n  </div>\n'
-        );
-var Ds = function(e) {
-    r(t, e);
-    var a = h(t);
-
-    function t() {
-        var e;
-        return s(this, t), (e = a.call(this)).attachShadow({
-            mode: "open"
-        }), e
-    }
-    return o(t, [{
-        key: "connectedCallback",
-        value: function() {
-            var e = this;
-            this.shadowRoot.appendChild(Ns.content.cloneNode(!0)), this.shadowRoot
-                .querySelector("game-icon").addEventListener("click", (function(a) {
-                    e.shadowRoot.querySelector(".overlay").classList.add(
-                        "closing")
-                })), this.shadowRoot.addEventListener("animationend", (function(a) {
-                    "SlideOut" === a.animationName && (e.shadowRoot.querySelector(
-                            ".overlay").classList.remove("closing"), Array
-                        .from(e.childNodes).forEach((function(a) {
-                            e.removeChild(a)
-                        })), e.removeAttribute("open"))
-                }))
-        }
-    }]), t
-}(c(HTMLElement));
-customElements.define("game-page", Ds);
-var Gs = document.createElement("template");
-Gs.innerHTML =
-    '\n  <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">\n    <path fill=var(--color-tone-3) />\n  </svg>\n';
-var Bs = {
-        help: "M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z",
-        settings: "M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z",
-        backspace: "M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z",
-        close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
-        share: "M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 7.02c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z",
-        statistics: "M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z"
-    },
-    Fs = function(e) {
+            }]), t
+        }(c(HTMLElement));
+    customElements.define("game-stats", Os);
+    var Rs = document.createElement("template");
+    Rs.innerHTML =
+        '\n  <style>\n    :host {\n    }\n    .container {\n      display: flex;\n      justify-content: space-between;\n    }\n    .switch {\n      height: 20px;\n      width: 32px;\n      vertical-align: middle;\n      /* not quite right */\n      background: var(--color-tone-3);\n      border-radius: 999px;\n      display: block;\n      position: relative;\n    }\n    .knob {\n      display: block;\n      position: absolute;\n      left: 2px;\n      top: 2px;\n      height: calc(100% - 4px);\n      width: 50%;\n      border-radius: 8px;\n      background: var(--white);\n      transform: translateX(0);\n      transition: transform 0.3s;\n    }\n    :host([checked]) .switch {\n      background: var(--color-correct);\n    }\n    :host([checked]) .knob {\n      transform: translateX(calc(100% - 4px));\n    }\n    :host([disabled]) .switch {\n      opacity: 0.5;\n    }\n  </style>\n  <div class="container">\n    <label><slot></slot></label>\n    <div class="switch">\n      <span class="knob"></div>\n    </div>\n  </div>\n';
+    var Ps = function (e) {
         r(t, e);
         var a = h(t);
 
@@ -3412,75 +3389,297 @@ var Bs = {
         }
         return o(t, [{
             key: "connectedCallback",
-            value: function() {
-                this.shadowRoot.appendChild(Gs.content.cloneNode(!0));
-                var e = this.getAttribute("icon");
-                this.shadowRoot.querySelector("path").setAttribute("d", Bs[e]),
-                    "backspace" === e && this.shadowRoot.querySelector("path").setAttribute(
-                        "fill", "var(--color-tone-1)"), "share" === e && this.shadowRoot
-                    .querySelector("path").setAttribute("fill", "var(--white)")
+            value: function () {
+                var e = this;
+                this.shadowRoot.appendChild(Rs.content.cloneNode(!0)), this.shadowRoot
+                    .querySelector(".container").addEventListener("click", (function (a) {
+                        a.stopPropagation(), e.hasAttribute("checked") ? e
+                            .removeAttribute("checked") : e.setAttribute("checked",
+                                ""), e.dispatchEvent(new CustomEvent(
+                                    "game-switch-change", {
+                                    bubbles: !0,
+                                    composed: !0,
+                                    detail: {
+                                        name: e.getAttribute("name"),
+                                        checked: e.hasAttribute("checked"),
+                                        disabled: e.hasAttribute("disabled")
+                                    }
+                                }))
+                    }))
+            }
+        }], [{
+            key: "observedAttributes",
+            get: function () {
+                return ["checked"]
             }
         }]), t
     }(c(HTMLElement));
-customElements.define("game-icon", Fs);
-var Ws = document.createElement("template");
-Ws.innerHTML = '\n  <div id="timer"></div>\n';
-var Ys = 6e4,
-    Js = 36e5,
-    Us = function(e) {
+    customElements.define("game-switch", Ps);
+
+
+
+
+    var date_picker_view = document.createElement("template");
+    date_picker_view.innerHTML = `\n <style> \n  #prev {
+        background-color: #ffffff00;
+        color: var(--key-text-color);
+        font-family: inherit;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid gray;
+        user-select: none;
+        /* display: flex; */
+        justify-content: center;
+        align-items: center;
+        text-transform: uppercase;
+        -webkit-tap-highlight-color: rgba(0,0,0,0.3);
+        width: 3em;
+        font-size: 20px;
+        height: 52px;
+        -webkit-filter: brightness(100%);
+      }
+      #next {
+        background-color: #ffffff00;
+        color: var(--key-text-color);
+        font-family: inherit;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid gray;
+        user-select: none;
+        /* display: flex; */
+        justify-content: center;
+        align-items: center;
+        text-transform: uppercase;
+        -webkit-tap-highlight-color: rgba(0,0,0,0.3);
+        width: 3em;
+        font-size: 20px;
+        height: 52px;
+        -webkit-filter: brightness(100%);
+      } 
+      #date_input {
+        color: var(--color-absent);
+        font-family: inherit;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid gray;
+        text-align: center;
+        user-select: none;
+        justify-content: center;
+        align-items: center;
+        text-transform: uppercase;
+        -webkit-tap-highlight-color: rgba(0,0,0,0.3);
+        font-size: 20px;
+        -webkit-filter: brightness(100%);
+        margin: 0 5px 0 5px;
+        width: inherit;
+      }
+      #datepicker_section {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+
+      \n </style> \n <section id="datepicker_section">\n<button id="prev">\<</button> <input type="text" id="date_input" placeholder="Popup"/> <button id="next">\></button> </section> <section> </section>`;
+    var date_picker = function (e) {
         r(t, e);
         var a = h(t);
 
         function t() {
             var e;
-            s(this, t), n(p(e = a.call(this)), "targetEpochMS", void 0), n(p(e), "intervalId", void 0), n(p(
-                e), "$timer", void 0), e.attachShadow({
+            return s(this, t), (e = a.call(this)).attachShadow({
                 mode: "open"
-            });
-            var o = new Date;
-            return o.setDate(o.getDate() + 1), o.setHours(0, 0, 0, 0), e.targetEpochMS = o.getTime(), e
+            }), e
         }
         return o(t, [{
-            key: "padDigit",
-            value: function(e) {
-                return e.toString().padStart(2, "0")
-            }
-        }, {
-            key: "updateTimer",
-            value: function() {
-                var e, a = (new Date).getTime(),
-                    s = Math.floor(this.targetEpochMS - a);
-                if (s <= 0) e = "00:00:00";
-                else {
-                    var t = Math.floor(s % 864e5 / Js),
-                        o = Math.floor(s % Js / Ys),
-                        n = Math.floor(s % Ys / 1e3);
-                    e = "".concat(this.padDigit(t), ":").concat(this.padDigit(o), ":").concat(
-                        this.padDigit(n))
-                }
-                this.$timer.textContent = e
-            }
-        }, {
             key: "connectedCallback",
-            value: function() {
-                var e = this;
-                this.shadowRoot.appendChild(Ws.content.cloneNode(!0)), this.$timer = this
-                    .shadowRoot.querySelector("#timer"), this.intervalId = setInterval((
-                        function() {
-                            e.updateTimer()
-                        }), 200)
-            }
-        }, {
-            key: "disconnectedCallback",
-            value: function() {
-                clearInterval(this.intervalId)
+            value: function () {
+                this.shadowRoot.appendChild(date_picker_view.content.cloneNode(!0));
+                window.addEventListener("load", () => {
+                    picker.attach({
+                        target: this.shadowRoot.querySelector("#date_input"),
+                        onpick: (value) => {
+                            window.localStorage.setItem("current_date", value);
+                            window.location.reload();
+                        }
+                    });
+                });
+                this.shadowRoot.querySelector("#date_input").value = window.localStorage.getItem('current_date');
+
+                this.shadowRoot.querySelector("#prev").addEventListener("click", () => {
+                    let date = new Date(this.shadowRoot.querySelector("#date_input").value);
+                    date.setDate(date.getDate() - 1);
+                    this.shadowRoot.querySelector("#date_input").value = date.toISOString().split('T')[0];
+                    window.localStorage.setItem("current_date", this.shadowRoot.querySelector("#date_input").value);
+                    window.location.reload();
+                });
+
+                this.shadowRoot.querySelector("#next").addEventListener("click", () => {
+                    let date = new Date(this.shadowRoot.querySelector("#date_input").value);
+                    date.setDate(date.getDate() + 1);
+                    this.shadowRoot.querySelector("#date_input").value = date.toISOString().split('T')[0];
+                    window.localStorage.setItem("current_date", this.shadowRoot.querySelector("#date_input").value);
+                    window.location.reload();
+                });
             }
         }]), t
     }(c(HTMLElement));
-return customElements.define("countdown-timer", Us), e.CountdownTimer = Us, e.GameApp = ts, e.GameHelp = Hs, e
-    .GameIcon = Fs, e.GameKeyboard = us, e.GameModal = ns, e.GamePage = Ds, e.GameRow = x, e.GameSettings =
-    _a, e.GameStats = Os, e.GameSwitch = Ps, e.GameThemeManager = _, e.GameTile = v, e.GameToast = Aa, Object
-    .defineProperty(e, "__esModule", {
-        value: !0
-    }), e
+    customElements.define("date-picker", date_picker);
+
+
+
+    var $s = document.createElement("template");
+    $s.innerHTML =
+        '\n  <style>\n  .instructions {\n    font-size: 14px;\n    color: var(--color-tone-1)\n  }\n\n  .examples {\n    border-bottom: 1px solid var(--color-tone-4);\n    border-top: 1px solid var(--color-tone-4);\n  }\n\n  .example {\n    margin-top: 24px;\n    margin-bottom: 24px;\n  }\n\n  game-tile {\n    width: 40px;\n    height: 40px;\n  }\n\n  :host([page]) section {\n    padding: 16px;\n    padding-top: 0px;\n  }\n\n  </style>\n  <section>\n    <div class="instructions">\n      <p>Guess the <strong>WORDLE</strong> in 6 tries.</p>\n      <p>Each guess must be a valid 5 letter word. Hit the enter button to submit.</p>\n      <p>After each guess, the color of the tiles will change to show how close your guess was to the word.</p>\n      <div class="examples">\n        <p><strong>Examples</strong></p>\n        <div class="example">\n          <div class="row">\n            <game-tile letter="w" evaluation="correct" reveal></game-tile>\n            <game-tile letter="e"></game-tile>\n            <game-tile letter="a"></game-tile>\n            <game-tile letter="r"></game-tile>\n            <game-tile letter="y"></game-tile>\n          </div>\n          <p>The letter <strong>W</strong> is in the word and in the correct spot.</p>\n        </div>\n        <div class="example">\n          <div class="row">\n            <game-tile letter="p"></game-tile>\n            <game-tile letter="i" evaluation="present" reveal></game-tile>\n            <game-tile letter="l"></game-tile>\n            <game-tile letter="l"></game-tile>\n            <game-tile letter="s"></game-tile>\n          </div>\n          <p>The letter <strong>I</strong> is in the word but in the wrong spot.</p>\n        </div>\n        <div class="example">\n          <div class="row">\n            <game-tile letter="v"></game-tile>\n            <game-tile letter="a"></game-tile>\n            <game-tile letter="g"></game-tile>\n            <game-tile letter="u" evaluation="absent" reveal></game-tile>\n            <game-tile letter="e"></game-tile>\n          </div>\n          <p>The letter <strong>U</strong> is not in the word in any spot.</p>\n        </div>\n      </div>\n      <p><strong>A new WORDLE will be available each day!<strong></p>\n    </div>\n  </section>\n';
+    var Hs = function (e) {
+        r(t, e);
+        var a = h(t);
+
+        function t() {
+            var e;
+            return s(this, t), (e = a.call(this)).attachShadow({
+                mode: "open"
+            }), e
+        }
+        return o(t, [{
+            key: "connectedCallback",
+            value: function () {
+                this.shadowRoot.appendChild($s.content.cloneNode(!0))
+            }
+        }]), t
+    }(c(HTMLElement));
+    customElements.define("game-help", Hs);
+    var Ns = document.createElement("template");
+    Ns.innerHTML =
+        "\n  <style>\n    .overlay {\n      display: none;\n      position: absolute;\n      width: 100%;\n      height: 100%;\n      top: 0;\n      left: 0;\n      justify-content: center;\n      background-color: var(--color-background);\n      animation: SlideIn 100ms linear;\n      z-index: "
+            .concat(2e3,
+                ';\n    }\n\n    :host([open]) .overlay {\n      display: flex;\n    }\n\n    .content {\n      position: relative;\n      color: var(--color-tone-1);\n      padding: 0 32px;\n      max-width: var(--game-max-width);\n      width: 100%;\n      overflow-y: auto;\n      height: 100%;\n      display: flex;\n      flex-direction: column;\n    }\n\n    .content-container {\n      height: 100%;\n    }\n\n    .overlay.closing {\n      animation: SlideOut 150ms linear;\n    }\n\n    header {\n      display: flex;\n      justify-content: center;\n      align-items: center;\n      position: relative;\n    }\n\n    h1 {\n      font-weight: 700;\n      font-size: 16px;\n      letter-spacing: 0.5px;\n      text-transform: uppercase;\n      text-align: center;\n      margin-bottom: 10px;\n    }\n\n    game-icon {\n      position: absolute;\n      right: 0;\n      user-select: none;\n      cursor: pointer;\n    }\n\n    @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {\n      .content {\n        max-width: 100%;\n        padding: 0;\n      }\n      game-icon {\n        padding: 0 16px;\n      }\n    }\n\n    @keyframes SlideIn {\n      0% {\n        transform: translateY(30px);\n        opacity: 0;\n      }\n      100% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n    }\n    @keyframes SlideOut {\n      0% {\n        transform: translateY(0px);\n        opacity: 1;\n      }\n      90% {\n        opacity: 0;\n      }\n      100% {\n        opacity: 0;\n        transform: translateY(60px);\n      }\n    }\n  </style>\n  <div class="overlay">\n    <div class="content">\n      <header>\n        <h1><slot></slot></h1>\n        <game-icon icon="close"></game-icon>\n      </header>\n      <div class="content-container">\n        <slot name="content"></slot>\n      </div>\n    </div>\n  </div>\n'
+            );
+    var Ds = function (e) {
+        r(t, e);
+        var a = h(t);
+
+        function t() {
+            var e;
+            return s(this, t), (e = a.call(this)).attachShadow({
+                mode: "open"
+            }), e
+        }
+        return o(t, [{
+            key: "connectedCallback",
+            value: function () {
+                var e = this;
+                this.shadowRoot.appendChild(Ns.content.cloneNode(!0)), this.shadowRoot
+                    .querySelector("game-icon").addEventListener("click", (function (a) {
+                        e.shadowRoot.querySelector(".overlay").classList.add(
+                            "closing")
+                    })), this.shadowRoot.addEventListener("animationend", (function (a) {
+                        "SlideOut" === a.animationName && (e.shadowRoot.querySelector(
+                            ".overlay").classList.remove("closing"), Array
+                                .from(e.childNodes).forEach((function (a) {
+                                    e.removeChild(a)
+                                })), e.removeAttribute("open"))
+                    }))
+            }
+        }]), t
+    }(c(HTMLElement));
+    customElements.define("game-page", Ds);
+    var Gs = document.createElement("template");
+    Gs.innerHTML =
+        '\n  <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">\n    <path fill=var(--color-tone-3) />\n  </svg>\n';
+    var Bs = {
+        help: "M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z",
+        settings: "M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z",
+        backspace: "M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.9.89 1.59.89h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H7.07L2.4 12l4.66-7H22v14zm-11.59-2L14 13.41 17.59 17 19 15.59 15.41 12 19 8.41 17.59 7 14 10.59 10.41 7 9 8.41 12.59 12 9 15.59z",
+        close: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z",
+        share: "M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92zM18 4c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zM6 13c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm12 7.02c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z",
+        statistics: "M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z",
+        reset: "M 23.224921,6.028266 A 9.8570712,9.8570712 0 0 0 4.3679147,8.579589 H 0 L 5.1428197,13.722404 10.285639,8.579589 H 6.0243311 C 6.6428088,4.6557766 10.047784,1.6456214 14.142754,1.6456214 c 4.532378,0 8.219672,3.6872961 8.219672,8.2196726 0,4.532377 -3.687294,8.219673 -8.219672,8.219673 A 8.2330652,8.2330652 0 0 1 8.931364,16.222035 0.81883333,0.81883333 0 0 0 7.8923533,17.487643 9.8597498,9.8597498 0 0 0 23.224921,6.028266 Z"
+    },
+        Fs = function (e) {
+            r(t, e);
+            var a = h(t);
+
+            function t() {
+                var e;
+                return s(this, t), (e = a.call(this)).attachShadow({
+                    mode: "open"
+                }), e
+            }
+            return o(t, [{
+                key: "connectedCallback",
+                value: function () {
+                    this.shadowRoot.appendChild(Gs.content.cloneNode(!0));
+                    var e = this.getAttribute("icon");
+                    this.shadowRoot.querySelector("path").setAttribute("d", Bs[e]),
+                        "backspace" === e && this.shadowRoot.querySelector("path").setAttribute(
+                            "fill", "var(--color-tone-1)"), "share" === e && this.shadowRoot
+                                .querySelector("path").setAttribute("fill", "var(--white)")
+                }
+            }]), t
+        }(c(HTMLElement));
+    customElements.define("game-icon", Fs);
+    var Ws = document.createElement("template");
+    Ws.innerHTML = '\n  <div id="timer"></div>\n';
+    var Ys = 6e4,
+        Js = 36e5,
+        Us = function (e) {
+            r(t, e);
+            var a = h(t);
+
+            function t() {
+                var e;
+                s(this, t), n(p(e = a.call(this)), "targetEpochMS", void 0), n(p(e), "intervalId", void 0), n(p(
+                    e), "$timer", void 0), e.attachShadow({
+                        mode: "open"
+                    });
+                var o = new Date;
+                return o.setDate(o.getDate() + 1), o.setHours(0, 0, 0, 0), e.targetEpochMS = o.getTime(), e
+            }
+            return o(t, [{
+                key: "padDigit",
+                value: function (e) {
+                    return e.toString().padStart(2, "0")
+                }
+            }, {
+                key: "updateTimer",
+                value: function () {
+                    var e, a = (new Date).getTime(),
+                        s = Math.floor(this.targetEpochMS - a);
+                    if (s <= 0) e = "00:00:00";
+                    else {
+                        var t = Math.floor(s % 864e5 / Js),
+                            o = Math.floor(s % Js / Ys),
+                            n = Math.floor(s % Ys / 1e3);
+                        e = "".concat(this.padDigit(t), ":").concat(this.padDigit(o), ":").concat(
+                            this.padDigit(n))
+                    }
+                    this.$timer.textContent = e
+                }
+            }, {
+                key: "connectedCallback",
+                value: function () {
+                    var e = this;
+                    this.shadowRoot.appendChild(Ws.content.cloneNode(!0)), this.$timer = this
+                        .shadowRoot.querySelector("#timer"), this.intervalId = setInterval((
+                            function () {
+                                e.updateTimer()
+                            }), 200)
+                }
+            }, {
+                key: "disconnectedCallback",
+                value: function () {
+                    clearInterval(this.intervalId)
+                }
+            }]), t
+        }(c(HTMLElement));
+    return customElements.define("countdown-timer", Us), e.CountdownTimer = Us, e.GameApp = ts, e.GameHelp = Hs, e
+        .GameIcon = Fs, e.GameKeyboard = us, e.GameModal = ns, e.GamePage = Ds, e.GameRow = x, e.GameSettings =
+        _a, e.GameStats = Os, e.GameSwitch = Ps, e.GameThemeManager = _, e.GameTile = v, e.GameToast = Aa, Object
+            .defineProperty(e, "__esModule", {
+                value: !0
+            }), e
 }({});
