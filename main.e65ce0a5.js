@@ -4,24 +4,27 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function (e) {
 
     document.addEventListener("DOMContentLoaded", function () {
         let styles = [],
-        keys = Object.keys(localStorage);
+            keys = Object.keys(localStorage);
 
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
-            if(key.indexOf('gameState.') === 0) {
-                let status = JSON.parse(localStorage.getItem(key)).gameStatus;
-                let color = status === 'IN_PROGRESS' ? '#ffc107' : status === 'WIN' ? '#28a745' : '#dc3545';
-                styles.push(`\ntd[data-date="${key.substring(10)}"] {
+            if (key.indexOf('gameState.') === 0) {
+                let state = JSON.parse(localStorage.getItem(key));
+                if (state.rowIndex > 0) {
+                    let status = state.gameStatus;
+                    let color = status === 'IN_PROGRESS' ? '#ffc107' : status === 'WIN' ? '#28a745' : '#dc3545';
+                    styles.push(`\ntd[data-date="${key.substring(10)}"] {
                     background-color: ${color};
-                }\n`);            
+                }\n`);
+                }
             }
         }
-        
+
         const style = document.createElement('style');
         style.innerHTML = `${styles.join('\n')}`;
         document.head.appendChild(style);
     });
-    
+
     Date.prototype.addDays = function (days) {
         var date = new Date(this.valueOf());
         date.setDate(date.getDate() + days);
@@ -996,7 +999,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function (e) {
     }
     var Sa = document.createElement("template");
     Sa.innerHTML =
-        '\n  <style>\n  .setting {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    border-bottom: 1px solid var(--color-tone-4);\n    padding: 16px 0;\n  }\n\n  a, a:visited {\n    color: var(--color-tone-2);\n  }\n\n  .title {\n    font-size: 18px;\n  }\n  .text {\n    padding-right: 8px;\n  }\n  .description {\n    font-size: 12px;\n    color: var(--color-tone-2);\n  }\n\n  #footnote {\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    padding: 16px;\n    color: var(--color-tone-2);\n    font-size: 12px;\n    text-align: right;\n    display: flex;\n    justify-content: space-between;\n    align-items: flex-end;\n  }\n\n  #privacy-policy,\n  #copyright {\n    text-align: left;\n  }\n\n  @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {\n    .setting {\n      padding: 16px;\n    }\n  }\n\n  </style>\n  <div class="sections">\n    <section>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Hard Mode</div>\n          <div class="description">Any revealed hints must be used in subsequent guesses</div>\n        </div>\n        <div class="control">\n          <game-switch id="hard-mode" name="hard-mode"></game-switch>\n        </div>\n      </div>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Dark Theme</div>\n        </div>\n        <div class="control">\n          <game-switch id="dark-theme" name="dark-theme"></game-switch>\n        </div>\n      </div>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Color Blind Mode</div>\n          <div class="description">High contrast colors</div>\n        </div>\n        <div class="control">\n          <game-switch id="color-blind-theme" name="color-blind-theme"></game-switch>\n        </div>\n      </div>\n    </section>\n\n    <section>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Feedback</div>\n        </div>\n        <div class="control">\n          <a href="mailto:wordle@powerlanguage.co.uk?subject=Feedback" title="wordle@powerlanguage.co.uk">Email</a>\n          |\n          <a href="https://twitter.com/intent/tweet?screen_name=powerlanguish" target="blank" title="@powerlanguish">Twitter</a>\n        </div>\n      </div>\n    </section>\n  </div>\n  <div id="footnote">\n    <div>\n      <div id="privacy-policy"><a href="https://www.powerlanguage.co.uk/privacy-policy.html" target="_blank">Privacy Policy</a></div>\n      <div id="copyright">Copyright 2021-2022. All Rights Reserved.</div>\n    </div>\n    <div>\n      <div id="puzzle-number"></div>\n      <div id="hash"></div>\n    </div>\n  </div>\n';
+        '\n  <style>\n  .setting {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    border-bottom: 1px solid var(--color-tone-4);\n    padding: 16px 0;\n  }\n\n  a, a:visited {\n    color: var(--color-tone-2);\n  }\n\n  .title {\n    font-size: 18px;\n  }\n  .text {\n    padding-right: 8px;\n  }\n  .description {\n    font-size: 12px;\n    color: var(--color-tone-2);\n  }\n\n  #footnote {\n    position: absolute;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    padding: 16px;\n    color: var(--color-tone-2);\n    font-size: 12px;\n    text-align: right;\n    display: flex;\n    justify-content: space-between;\n    align-items: flex-end;\n  }\n\n  #privacy-policy,\n  #copyright {\n    text-align: left;\n  }\n\n  @media only screen and (min-device-width : 320px) and (max-device-width : 480px) {\n    .setting {\n      padding: 16px;\n    }\n  }\n\n  </style>\n  <div class="sections">\n    <section>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Hard Mode</div>\n          <div class="description">Any revealed hints must be used in subsequent guesses</div>\n        </div>\n        <div class="control">\n          <game-switch id="hard-mode" name="hard-mode"></game-switch>\n        </div>\n      </div>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Dark Theme</div>\n        </div>\n        <div class="control">\n          <game-switch id="dark-theme" name="dark-theme"></game-switch>\n        </div>\n      </div>\n      <div class="setting">\n        <div class="text">\n          <div class="title">Color Blind Mode</div>\n          <div class="description">High contrast colors</div>\n        </div>\n        <div class="control">\n          <game-switch id="color-blind-theme" name="color-blind-theme"></game-switch>\n        </div>\n      </div>\n    </section>\n\n    \n  </div>\n  <div id="footnote">\n    <div>\n      <div id="privacy-policy">Based on the <a href="https://www.powerlanguage.co.uk/wordle/">Wordle game<a/></div>\n      \n    </div>\n    <div>\n      <div id="puzzle-number"></div>\n      <div id="hash"></div>\n    </div>\n  </div>\n';
     var _a = function (e) {
         r(t, e);
         var a = h(t);
@@ -2540,7 +2543,7 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function (e) {
                 }
                 e.today = new Date(window.localStorage.getItem('current_date'));
                 var o = za();
-                return e.lastPlayedTs = o.lastPlayedTs, !e.lastPlayedTs  ?
+                return e.lastPlayedTs = o.lastPlayedTs, !e.lastPlayedTs ?
 
                     (e.boardState = new Array(6).fill(""), e.evaluations = new Array(6)
                         .fill(null), e.solution = Da(e.today), e.dayOffset = Ga(e.today), e
@@ -2978,10 +2981,10 @@ this.wordle = this.wordle || {}, this.wordle.bundle = function (e) {
         }(c(HTMLElement));
     /*! *****************************************************************************
       Copyright (c) Microsoft Corporation.
-
+    
       Permission to use, copy, modify, and/or distribute this software for any
       purpose with or without fee is hereby granted.
-
+    
       THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
       REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
       AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
